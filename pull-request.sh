@@ -49,10 +49,8 @@ check_pull_request() {
     SOURCE=${1}  # from this branch
     TARGET=${2}  # pull request TO this target
     DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
-    echo "curl --user ${GITHUB_ACTOR} -X GET --data ${DATA} ${PULLS_URL}"
     RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
     PRS=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
-
     for REF in ${PRS}; do
         if [[ "${REF}" == "${SOURCE}" ]]; then
             return 1;
@@ -69,7 +67,9 @@ create_pull_request() {
 
     # Check if the pull request is already submit
     check_pull_request "${SOURCE}" "${TARGET}"
-    if [[ $? == "1" ]]; then
+    retval=$?
+    echo "Return value is $retval."
+    if [[ "${retval}" == "1" ]]; then
         echo "Pull request from ${SOURCE} to ${TARGET} is already open!"
     else
         TITLE="Update container ${SOURCE}"
