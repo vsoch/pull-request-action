@@ -33,9 +33,13 @@ Environment variables include:
 
 ## Example use Case: Update Registry
 
-As an example, I created this action to be intended for an [organizational static registry](https://www.github.com/singularityhub/registry-org) for container builds. Specifically, you
-have modular repositories building container recipes, and then opening pull requests to the 
+As an example, I created this action to be intended for an 
+[organizational static registry](https://www.github.com/singularityhub/registry-org) for container builds. 
+Specifically, you have modular repositories building container recipes, and then opening pull requests to the 
 registry to update it. 
 
- - the container collection pull request should be generated from a separate GitHub repository, including the folder structure (manifests, tags, collection README) that are expected.
- - pushing a branch that starts with update/<namespace> should open a pull request, if it doens't exist. If the branch is already open for PR, it updates it.
+ - the container collection content should be generated from a separate GitHub repository, including the folder structure (manifests, tags, collection README) that are expected.
+ - the container collection metadata is pushed to a new branch on the registry repository, with namespace matching the GitHub repository, meaning that each GitHub repository always has a unique branch for its content.
+ - pushing this branch that starts with the prefix (update/<namespace>) triggers the GitHub actions to open the pull request.
+
+If the branch is already open for PR, it updates it.
