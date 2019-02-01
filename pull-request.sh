@@ -86,7 +86,7 @@ main () {
             TITLE="Update container ${BRANCH}"
             BODY="This is an automated pull request to update the container collection ${BRANCH}"
 
-            hub pull-request --base "${GITHUB_ACTOR}:${PULL_REQUEST_BRANCH}" --head "${GITHUB_ACTOR}:${BRANCH}" --message "${TITLE}        ${BODY}"
+            hub pull-request --base "${GITHUB_ACTOR}:${PULL_REQUEST_BRANCH}" --head "${GITHUB_ACTOR}:${BRANCH}" --message "${TITLE}\n\n${BODY}"
 
         fi
 
