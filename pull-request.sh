@@ -22,11 +22,6 @@ PULLS_URL=$REPO_URL/pulls
 # Helper Functions
 ################################################################################
 
-get_url() {
-
-    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" "${1:-}")
-    echo ${RESPONSE}
-}
 
 check_credentials() {
 
@@ -58,7 +53,7 @@ create_pull_request() {
     # Post the pull request
     DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
     echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
-    curl --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
+    curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
     echo $?
 }
 
@@ -97,7 +92,6 @@ main () {
 
             # Ensure we have a GitHub token
             check_credentials
-            hub pull-request --base ${GITHUB_ACTOR}:${PULL_REQUEST_BRANCH} --head ${GITHUB_ACT}:my-branch
             create_pull_request $BRANCH $PULL_REQUEST_BRANCH
 
         fi
