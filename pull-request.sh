@@ -42,10 +42,37 @@ check_events_json() {
     
 }
 
+check_pull_request() {
+
+    # Check if the branch already has a pull request open 
+
+    SOURCE=${1}  # from this branch
+    TARGET=${2}  # pull request TO this target
+    DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+    echo "curl --user ${GITHUB_ACTOR} -X GET --data ${DATA} ${PULLS_URL}"
+    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
+    PRS=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
+
+    for REF in ${PRS}; do
+        if [[ "${REF}" == "${SOURCE}" ]]; then
+            return 1;
+        fi
+    done
+    return 0;
+
+}
+
 create_pull_request() {
 
     SOURCE=${1}  # from this branch
     TARGET=${2}  # pull request TO this target
+
+    # Check if the pull request is already submit
+    check_pull_request "${SOURCE}" "${TARGET}"
+    if [[ $? == "1" ]]; then
+        echo "Pull request from ${SOURCE} to ${TARGET} is already open!"
+        exit 0;
+    fi
 
     TITLE="Update container ${SOURCE}"
     BODY="This is an automated pull request to update the container collection ${SOURCE}"
