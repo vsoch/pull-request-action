@@ -44,8 +44,7 @@ check_events_json() {
         exit 1;
     fi
     echo "Found ${GITHUB_EVENT_PATH}";
-    cat "${GITHUB_EVENT_PATH}"
-
+    
 }
 
 create_pull_request() {
@@ -73,6 +72,7 @@ main () {
     if [ -z "${BRANCH_PREFIX}" ]; then
         echo "No branch prefix is set, all branches will be used."
         BRANCH_PREFIX=""
+        echo "Branch prefix is $BRANCH_PREFIX"
     fi
 
     if [ -z "${PULL_REQUEST_BRANCH}" ]; then
@@ -82,11 +82,11 @@ main () {
 
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
+    BRANCH=$(echo "${BRANCH/refs\/heads\//}")
     echo "Found branch $BRANCH"
  
     # If it's to the target branch, ignore it
     if [[ "${BRANCH}" == "${PULL_REQUEST_BRANCH}" ]]; then
-
         echo "Target and current branch are identical (${BRANCH}), skipping."
     else
 
