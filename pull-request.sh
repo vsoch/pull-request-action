@@ -50,12 +50,11 @@ check_pull_request() {
     TARGET=${2}  # pull request TO this target
     DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
     RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
-    PRS=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
-    for REF in ${PRS}; do
-        if [[ "${REF}" == "${SOURCE}" ]]; then
+    PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
+    echo "Response ref: ${PR}"
+    if [[ "${PR}" == "${SOURCE}" ]]; then
             return 1;
-        fi
-    done
+    fi
     return 0;
 
 }
