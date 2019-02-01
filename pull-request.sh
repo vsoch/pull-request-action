@@ -83,6 +83,11 @@ main () {
             # Ensure we have a GitHub token
             check_credentials
 
+            # Change to the GitHub repository
+            cd ${GITHUB_WORKSPACE}
+            echo "Present working directory with Git Workspace is ${PWD}"
+            git branch
+
             TITLE="Update container ${BRANCH}"
             BODY="This is an automated pull request to update the container collection ${BRANCH}"
 
