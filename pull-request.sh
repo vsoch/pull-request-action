@@ -85,7 +85,8 @@ main () {
     echo "Found branch $BRANCH"
  
     # If it's to the target branch, ignore it
-    if [[ "${BRANCH}" == "${PULL_REQUEST_BRANCH}" ]]
+    if [[ "${BRANCH}" == "${PULL_REQUEST_BRANCH}" ]]; then
+
         echo "Target and current branch are identical (${BRANCH}), skipping."
     else
 
