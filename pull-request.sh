@@ -42,34 +42,23 @@ check_events_json() {
     
 }
 
-check_pull_request() {
-
-    # Check if the branch already has a pull request open 
-
-    SOURCE=${1}  # from this branch
-    TARGET=${2}  # pull request TO this target
-    DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
-    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
-    PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
-    echo "Response ref: ${PR}"
-    if [[ "${PR}" == "${SOURCE}" ]]; then
-            return 1;
-    fi
-    return 0;
-
-}
-
 create_pull_request() {
 
     SOURCE=${1}  # from this branch
     TARGET=${2}  # pull request TO this target
 
-    # Check if the pull request is already submit
-    check_pull_request "${SOURCE}" "${TARGET}"
-    retval=$?
-    echo "Return value is $retval."
-    if [[ "${retval}" == "1" ]]; then
+    # Check if the branch already has a pull request open 
+
+    DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
+    PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
+    echo "Response ref: ${PR}"
+
+    # Option 1: The pull request is already open
+    if [[ "${PR}" == "${SOURCE}" ]]; then
         echo "Pull request from ${SOURCE} to ${TARGET} is already open!"
+
+    # Option 2: Open a new pull request
     else
         TITLE="Update container ${SOURCE}"
         BODY="This is an automated pull request to update the container collection ${SOURCE}"
