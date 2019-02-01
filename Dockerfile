@@ -10,4 +10,4 @@ LABEL "com.github.actions.color"="yellow"
 COPY pull-request.sh /pull-request.sh
 
 RUN chmod u+x /pull-request.sh
-ENTRYPOINT ["/pull-request"]
+ENTRYPOINT ["/pull-request.sh"]
