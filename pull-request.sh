@@ -71,17 +71,16 @@ create_pull_request() {
     check_pull_request "${SOURCE}" "${TARGET}"
     if [[ $? == "1" ]]; then
         echo "Pull request from ${SOURCE} to ${TARGET} is already open!"
-        exit 0;
+    else
+        TITLE="Update container ${SOURCE}"
+        BODY="This is an automated pull request to update the container collection ${SOURCE}"
+
+        # Post the pull request
+        DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+        echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
+        curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
+        echo $?
     fi
-
-    TITLE="Update container ${SOURCE}"
-    BODY="This is an automated pull request to update the container collection ${SOURCE}"
-
-    # Post the pull request
-    DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
-    echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
-    curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
-    echo $?
 }
 
 
