@@ -47,6 +47,21 @@ check_events_json() {
     
 }
 
+create_pull_request() {
+
+    SOURCE=${1}  # from this branch
+    TARGET=${2}  # pull request TO this target
+
+    TITLE="Update container ${SOURCE}"
+    BODY="This is an automated pull request to update the container collection ${SOURCE}"
+
+    # Post the pull request
+    DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+    echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
+    curl --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
+    echo $?
+}
+
 
 main () {
 
@@ -82,16 +97,8 @@ main () {
 
             # Ensure we have a GitHub token
             check_credentials
-
-            # Change to the GitHub repository
-            cd ${GITHUB_WORKSPACE}
-            echo "Present working directory with Git Workspace is ${PWD}"
-            git branch
-
-            TITLE="Update container ${BRANCH}"
-            BODY="This is an automated pull request to update the container collection ${BRANCH}"
-
-            hub pull-request --base "${PULL_REQUEST_BRANCH}" --head "${BRANCH}" --message "${TITLE}\n\n${BODY}"
+            hub pull-request --base ${GITHUB_ACTOR}:${PULL_REQUEST_BRANCH} --head ${GITHUB_ACT}:my-branch
+            create_pull_request $BRANCH $PULL_REQUEST_BRANCH
 
         fi
 
