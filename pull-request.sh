@@ -46,10 +46,12 @@ create_pull_request() {
 
     SOURCE=${1}  # from this branch
     TARGET=${2}  # pull request TO this target
+    BODY=${3}    # this is the content of the message
+    TITLE=${4}   # pull request title
 
     # Check if the branch already has a pull request open 
 
-    DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+    DATA="{\"base\":\"${TARGET}\", \"head\":\"${SOURCE}\", \"body\":\"${BODY}\"}"
     RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     echo "Response ref: ${PR}"
@@ -60,9 +62,6 @@ create_pull_request() {
 
     # Option 2: Open a new pull request
     else
-        TITLE="Update container ${SOURCE}"
-        BODY="This is an automated pull request to update the container collection ${SOURCE}"
-
         # Post the pull request
         DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
         echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
@@ -95,7 +94,7 @@ main () {
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
     BRANCH=$(echo "${BRANCH/refs\/heads\//}")
     echo "Found branch $BRANCH"
- 
+
     # If it's to the target branch, ignore it
     if [[ "${BRANCH}" == "${PULL_REQUEST_BRANCH}" ]]; then
         echo "Target and current branch are identical (${BRANCH}), skipping."
@@ -106,7 +105,22 @@ main () {
 
             # Ensure we have a GitHub token
             check_credentials
-            create_pull_request $BRANCH $PULL_REQUEST_BRANCH
+
+            # Pull request body (optional)
+            if [ -z "${PULL_REQUEST_BODY}" ]; then
+                echo "No pull request body is set, will use default."
+                PULL_REQUEST_BODY="This is an automated pull request to update the container collection ${BRANCH}"
+                echo "Pull request body is ${PULL_REQUEST_BODY}"
+            fi
+ 
+            # Pull request title (optional)
+            if [ -z "${PULL_REQUEST_TITLE}" ]; then
+                echo "No pull request title is set, will use default."
+                PULL_REQUEST_TITLE="Update container ${BRANCH}"
+                echo "Pull request title is ${PULL_REQUEST_TITLE}"
+            fi
+
+            create_pull_request $BRANCH $PULL_REQUEST_BRANCH $PULL_REQUEST_BODY $PULL_REQUEST_TITLE
 
         fi
 
