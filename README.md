@@ -30,6 +30,8 @@ Environment variables include:
 
   - **BRANCH_PREFIX**: the prefix to filter to. If the branch doesn't start with the prefix, it will be ignored
   - **PULL_REQUEST_BRANCH**: the branch to issue the pull request to. Defaults to master.
+  - **PULL_REQUEST_BODY**: the body for the pull request (optional)
+  - **PULL_REQUEST_TITLE**: the title for the pull request  (optional)
 
 ## Example use Case: Update Registry
 
