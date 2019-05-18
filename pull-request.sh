@@ -92,9 +92,10 @@ main () {
     echo "Pull requests will go to ${PULL_REQUEST_BRANCH}"
 
     if [ -z "${PULL_REQUEST_DRAFT}" ]; then
-        echo "No explicit preference for draft PR; defaulting to normal PR."
+        echo "No explicit preference for draft PR: created PRs will be normal PRs."
         PULL_REQUEST_DRAFT="false"
     else
+        echo "Environment variable PULL_REQUEST_DRAFT set to a value: created PRs will be draft PRs."
         PULL_REQUEST_DRAFT="true"
     fi
 
