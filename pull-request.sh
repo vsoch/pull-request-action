@@ -12,7 +12,7 @@ API_VERSION=v3
 BASE=https://api.github.com
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
 HEADER="Accept: application/vnd.github.${API_VERSION}+json"
-HEADER="${HEADER}; application/vnd.github.antiope-preview+json"
+HEADER="${HEADER}; application/vnd.github.antiope-preview+json; application/vnd.github.shadow-cat-preview+json"
 
 # URLs
 REPO_URL="${BASE}/repos/${GITHUB_REPOSITORY}"
@@ -48,6 +48,7 @@ create_pull_request() {
     TARGET=${2}  # pull request TO this target
     BODY=${3}    # this is the content of the message
     TITLE=${4}   # pull request title
+    DRAFT=${5}   # if PRs are draft
 
     # Check if the branch already has a pull request open 
 
@@ -63,7 +64,7 @@ create_pull_request() {
     # Option 2: Open a new pull request
     else
         # Post the pull request
-        DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\"}"
+        DATA="{\"title\":\"${TITLE}\", \"base\":\"${TARGET}\", \"head\":\"${SOURCE}\", \"draft\":\"${DRAFT}\"}"
         echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
         curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
         echo $?
@@ -89,6 +90,14 @@ main () {
         PULL_REQUEST_BRANCH=master
     fi
     echo "Pull requests will go to ${PULL_REQUEST_BRANCH}"
+
+    if [ -z "${PULL_REQUEST_DRAFT}" ]; then
+        echo "No explicit preference for draft PR: created PRs will be normal PRs."
+        PULL_REQUEST_DRAFT="false"
+    else
+        echo "Environment variable PULL_REQUEST_DRAFT set to a value: created PRs will be draft PRs."
+        PULL_REQUEST_DRAFT="true"
+    fi
 
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
@@ -120,7 +129,7 @@ main () {
                 echo "Pull request title is ${PULL_REQUEST_TITLE}"
             fi
 
-            create_pull_request $BRANCH $PULL_REQUEST_BRANCH $PULL_REQUEST_BODY $PULL_REQUEST_TITLE
+            create_pull_request $BRANCH $PULL_REQUEST_BRANCH $PULL_REQUEST_BODY $PULL_REQUEST_TITLE $PULL_REQUEST_DRAFT
 
         fi
 
