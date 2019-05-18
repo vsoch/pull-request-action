@@ -94,9 +94,16 @@ main () {
     if [ -z "${MAKE_DRAFT_PR}" ]; then
         echo "No explicit preference for draft PR; defaulting to normal PR."
         MAKE_DRAFT_PR="false"
+    else
+        MAKE_DRAFT_PR="true"
     fi
-    echo "Will PRs be draft PRs: ${MAKE_DRAFT_PR}"
 
+    # separate block for logging draft vs not draft
+    if [ "$MAKE_DRAFT_PR" = "true" ]; then
+        echo "Created PRs will be draft PRs."
+    else 
+        echo "Created PRs will be normal PRs."
+    fi
 
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");

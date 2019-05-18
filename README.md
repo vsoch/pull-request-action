@@ -32,7 +32,7 @@ Environment variables include:
   - **PULL_REQUEST_BRANCH**: the branch to issue the pull request to. Defaults to master.
   - **PULL_REQUEST_BODY**: the body for the pull request (optional)
   - **PULL_REQUEST_TITLE**: the title for the pull request  (optional)
-  - **MAKE_DRAFT_PR**: should the pull request be a draft PR? (optional; defaults to `false`)
+  - **MAKE_DRAFT_PR**: should the pull request be a draft PR? (optional; unset defaults to `false`)
 
 ## Example use Case: Update Registry
 
