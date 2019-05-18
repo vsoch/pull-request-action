@@ -99,13 +99,6 @@ main () {
         PULL_REQUEST_DRAFT="true"
     fi
 
-    # separate block for logging draft vs not draft
-    if [ "$PULL_REQUEST_DRAFT" = "true" ]; then
-        echo "Created PRs will be draft PRs."
-    else 
-        echo "Created PRs will be normal PRs."
-    fi
-
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
     BRANCH=$(echo "${BRANCH/refs\/heads\//}")
