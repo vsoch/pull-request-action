@@ -91,15 +91,15 @@ main () {
     fi
     echo "Pull requests will go to ${PULL_REQUEST_BRANCH}"
 
-    if [ -z "${MAKE_DRAFT_PR}" ]; then
+    if [ -z "${PULL_REQUEST_DRAFT}" ]; then
         echo "No explicit preference for draft PR; defaulting to normal PR."
-        MAKE_DRAFT_PR="false"
+        PULL_REQUEST_DRAFT="false"
     else
-        MAKE_DRAFT_PR="true"
+        PULL_REQUEST_DRAFT="true"
     fi
 
     # separate block for logging draft vs not draft
-    if [ "$MAKE_DRAFT_PR" = "true" ]; then
+    if [ "$PULL_REQUEST_DRAFT" = "true" ]; then
         echo "Created PRs will be draft PRs."
     else 
         echo "Created PRs will be normal PRs."
@@ -135,7 +135,7 @@ main () {
                 echo "Pull request title is ${PULL_REQUEST_TITLE}"
             fi
 
-            create_pull_request $BRANCH $PULL_REQUEST_BRANCH $PULL_REQUEST_BODY $PULL_REQUEST_TITLE $MAKE_DRAFT_PR
+            create_pull_request $BRANCH $PULL_REQUEST_BRANCH $PULL_REQUEST_BODY $PULL_REQUEST_TITLE $PULL_REQUEST_DRAFT
 
         fi
 
