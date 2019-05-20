@@ -44,11 +44,11 @@ check_events_json() {
 
 create_pull_request() {
 
-    SOURCE=${1}  # from this branch
-    TARGET=${2}  # pull request TO this target
-    BODY=${3}    # this is the content of the message
-    TITLE=${4}   # pull request title
-    DRAFT=${5}   # if PRs are draft
+    SOURCE="${1}"  # from this branch
+    TARGET="${2}"  # pull request TO this target
+    BODY="${3}"    # this is the content of the message
+    TITLE="${4}"   # pull request title
+    DRAFT="${5}"   # if PRs are draft
 
     # Check if the branch already has a pull request open 
 
