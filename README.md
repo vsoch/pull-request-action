@@ -5,25 +5,28 @@ whenever a branch with some prefix is pushed to. The idea is that you can
 set up some workflow that pushes content to branches of the repostory,
 and you would then want this push reviewed for merge to master.
 
-Here is an example of what to put in your `.github/main.workflow` file to
+Here is an example of what to put in your `.github/workflows/pull-request.yml` file to
 trigger the action.
 
-```
-workflow "Create Pull Request" {
-  on = "push"
-  resolves = "Create New Pull Request"
-}
-
-action "Create New Pull Request" {
-  uses = "vsoch/pull-request-action@master"
-  secrets = [
-    "GITHUB_TOKEN"
-  ]
-  env = {
-    BRANCH_PREFIX = "update/"
-    PULL_REQUEST_BRANCH = "master"
-  }
-}
+```yaml
+name: Pull Request on Branch Push
+on:
+  push:
+    branches-ignore:
+      - staging
+      - launchpad
+      - production
+jobs:
+  auto-pull-request:
+    name: PullRequestAction
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull-request-action
+        uses: vsoch/pull-request-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_PREFIX: "update/"
+          PULL_REQUEST_BRANCH: "master"
 ```
 
 Environment variables include:
@@ -33,6 +36,9 @@ Environment variables include:
   - **PULL_REQUEST_BODY**: the body for the pull request (optional)
   - **PULL_REQUEST_TITLE**: the title for the pull request  (optional)
   - **PULL_REQUEST_DRAFT**: should the pull request be a draft PR? (optional; unset defaults to `false`)
+
+The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
+the pull request.
 
 ## Example use Case: Update Registry
 
@@ -45,4 +51,6 @@ registry to update it.
  - the container collection metadata is pushed to a new branch on the registry repository, with namespace matching the GitHub repository, meaning that each GitHub repository always has a unique branch for its content.
  - pushing this branch that starts with the prefix (update/<namespace>) triggers the GitHub actions to open the pull request.
 
-If the branch is already open for PR, it updates it.
+If the branch is already open for PR, it updates it. Take a look at [this example](https://github.com/singularityhub/registry-org/pull/8)
+for the pull request opened when we updated the previous GitHub syntax to the new yaml syntax. Although this
+doesn't describe the workflow above, it works equivalently in terms of the triggers.
