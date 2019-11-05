@@ -1,4 +1,4 @@
-FROM debian:jessie-slim
+FROM alpine:3.10
 
 # docker build -t vanessa/pull-request-action .
 
@@ -7,7 +7,7 @@ LABEL "com.github.actions.description"="Create a pull request when a branch is c
 LABEL "com.github.actions.icon"="activity"
 LABEL "com.github.actions.color"="yellow"
 
-RUN apt-get update && apt-get install -y jq curl wget git
+# RUN apt-get update && apt-get install -y jq curl wget git
 COPY pull-request.sh /pull-request.sh
 
 RUN chmod u+x /pull-request.sh
