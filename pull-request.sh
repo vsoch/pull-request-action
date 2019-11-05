@@ -125,14 +125,14 @@ main () {
             # Pull request body (optional)
             if [ -z "${PULL_REQUEST_BODY}" ]; then
                 echo "No pull request body is set, will use default."
-                PULL_REQUEST_BODY="This is an automated pull request to update the container collection ${BRANCH}"
+                PULL_REQUEST_BODY="This is an automated pull request from branch ${BRANCH}"
             fi
             echo "Pull request body is ${PULL_REQUEST_BODY}"
 
             # Pull request title (optional)
             if [ -z "${PULL_REQUEST_TITLE}" ]; then
                 echo "No pull request title is set, will use default."
-                PULL_REQUEST_TITLE="Update container ${BRANCH}"
+                PULL_REQUEST_TITLE="Branch ${BRANCH}"
             fi
             echo "Pull request title is ${PULL_REQUEST_TITLE}"
 
