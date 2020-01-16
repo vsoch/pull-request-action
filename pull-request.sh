@@ -17,6 +17,7 @@ HEADER="${HEADER}; application/vnd.github.antiope-preview+json; application/vnd.
 # URLs
 REPO_URL="${BASE}/repos/${GITHUB_REPOSITORY}"
 PULLS_URL=$REPO_URL/pulls
+ISSUE_URL=$REPO_URL/issues
 
 ################################################################################
 # Helper Functions
@@ -49,6 +50,8 @@ create_pull_request() {
     TARGET="$(echo -n "${2}" | jq --raw-input --slurp ".")"  # pull request TO this target
     BODY="$(echo -n "${3}" | jq --raw-input --slurp ".")"    # this is the content of the message
     TITLE="$(echo -n "${4}" | jq --raw-input --slurp ".")"   # pull request title
+    MAINTAINER_CAN_MODIFY="$(echo -n "${5}" | jq --raw-input --slurp ".")"   # pull request title
+    ="$(echo -n "${5}" | jq --raw-input --slurp ".")"   # pull request title
 
     # JSON boolean
     if [[ "${5}" ==  "true" ]]; then                         # if PRs are draft
@@ -60,7 +63,8 @@ create_pull_request() {
     # Check if the branch already has a pull request open
 
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
-    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
+    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${
+    })
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     echo "Response ref: ${PR}"
 
@@ -71,10 +75,20 @@ create_pull_request() {
     # Option 2: Open a new pull request
     else
         # Post the pull request
-        DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}}"
+        DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MAINTAINER_CAN_MODIFY}}"
         echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
-        curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
+        PR_NUMBER=`curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL} | jq --raw-output '.number'`
         echo $?
+
+        echo "Created PR NUMBER: $PR_NUMBER"
+        if [ -n "$PULL_REQUEST_ASSIGNEE" ]; then
+          echo "Assiging: ${PULL_REQUEST_ASSIGNEE}"
+          DATA="{\"assignees\":[${PULL_REQUEST_ASSIGNEE}]"
+          curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" "${ISSUE_URL}:/${PR_NUMBER}"
+        else
+          echo "PULL_REQUEST_ASSIGNEE is not set"
+      fi
+      
     fi
 }
 
@@ -106,6 +120,15 @@ main () {
         PULL_REQUEST_DRAFT="true"
     fi
 
+    if [ -z "${PULL_REQUEST_MAINTAINER_CAN_MODIFY}" ]; then
+        echo "No explicit preference for maintainers can modify PR: created PRs with maintainers can modify=true."
+        PULL_REQUEST_MAINTAINER_CAN_MODIFY="true"
+    else
+        echo "Environment variable PULL_REQUEST_MAINTAINER_CAN_MODIFY set to a value: created PRs with maintainers can modify=false."
+        PULL_REQUEST_MAINTAINER_CAN_MODIFY="false"
+    fi
+
+
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
     BRANCH=$(echo "${BRANCH/refs\/heads\//}")
@@ -136,7 +159,7 @@ main () {
             fi
             echo "Pull request title is ${PULL_REQUEST_TITLE}"
 
-            create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}"
+            create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}" "${PULL_REQUEST_MAINTAINER_CAN_MODIFY}" "${PULL_REQUEST_ASSIGNEE}"
 
         fi
 
