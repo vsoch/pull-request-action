@@ -75,8 +75,10 @@ create_pull_request() {
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MAINTAINER_CAN_MODIFY}}"
         echo "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}"
-        PR_NUMBER=`curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL} | jq --raw-output '.number'`
-        echo $?
+        PR_RES=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
+        echo "PR open request result code: $?"
+        echo ${PR_RES}
+        PR_NUMBER=$(echo ${PR_RES} | jq --raw-output '.number')
 
         echo "Created PR NUMBER: $PR_NUMBER"
         if [ -n "$PULL_REQUEST_ASSIGNEE" ]; then
@@ -86,7 +88,7 @@ create_pull_request() {
         else
           echo "PULL_REQUEST_ASSIGNEE is not set"
       fi
-      
+
     fi
 }
 
