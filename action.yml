@@ -1,0 +1,9 @@
+name: 'Pull Request Action'
+description: 'A GitHub action to open a pull request'
+author: 'vsoch'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'activity'  
+  color: 'yellow'
