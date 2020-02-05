@@ -38,7 +38,7 @@ Environment variables include:
   - **PULL_REQUEST_DRAFT**: should the pull request be a draft PR? (optional; unset defaults to `false`)
 
 The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
-the pull request.
+the pull request. The example is [deployed here](https://github.com/vsoch/pull-request-action-example) with an example opened (and merged) [pull request here](https://github.com/vsoch/pull-request-action-example/pull/1) if needed.
 
 ## Example use Case: Update Registry
 
