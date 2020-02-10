@@ -10,7 +10,7 @@ set -o pipefail
 
 API_VERSION=v3
 BASE=https://api.github.com
-AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
+AUTH_HEADER="Authorization: Bearer ${GITHUB_TOKEN}"
 HEADER="Accept: application/vnd.github.${API_VERSION}+json"
 HEADER="${HEADER}; application/vnd.github.antiope-preview+json; application/vnd.github.shadow-cat-preview+json"
 
