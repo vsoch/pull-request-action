@@ -22,23 +22,70 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: pull-request-action
-        uses: vsoch/pull-request-action@master
+        uses: vsoch/pull-request-action@1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_PREFIX: "update/"
           PULL_REQUEST_BRANCH: "master"
 ```
 
-Environment variables include:
+## Environment Variables
 
-  - **BRANCH_PREFIX**: the prefix to filter to. If the branch doesn't start with the prefix, it will be ignored
-  - **PULL_REQUEST_BRANCH**: the branch to issue the pull request to. Defaults to master.
-  - **PULL_REQUEST_BODY**: the body for the pull request (optional)
-  - **PULL_REQUEST_TITLE**: the title for the pull request  (optional)
-  - **PULL_REQUEST_DRAFT**: should the pull request be a draft PR? (optional; unset defaults to `false`)
+Unlike standard actions, this action just uses variables from the environment.
+
+| Name | Description | Required | Default |
+|------|-------------|----------|---------|
+| BRANCH_PREFIX | the prefix to filter to. If the branch doesn't start with the prefix, it will be ignored | false | "" |
+| PULL_REQUEST_BRANCH | open pull request against this branch | false | master |
+| PULL_REQUEST_FROM_BRANCH | if a branch isn't found in your GitHub payload, use this branch | false | |
+| PULL_REQUEST_BODY | the body for the pull request | false | |
+| PULL REQUEST_TITLE | the title for the pull request | false | |
+| PULL REQUEST_DRAFT | should this be a draft PR? | false | false |
+
+All booleans should be lowercase.
 
 The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
 the pull request. The example is [deployed here](https://github.com/vsoch/pull-request-action-example) with an example opened (and merged) [pull request here](https://github.com/vsoch/pull-request-action-example/pull/1) if needed.
+
+
+## Examples
+
+Example workflows are provided in [examples](examples), and please contribute any
+examples that you might have to help other users! We will walk through a basic
+example here for a niche case. Let's say that we are opening a pull request on the release event. This would mean
+that the payload's branch variable would be null. We would need to define `PULL_REQUEST_FROM`. How would
+we do that? We can [set environment variables](https://help.github.com/en/actions/reference/development-tools-for-github-actions#set-an-environment-variable-set-env) for next steps. Here is an example:
+
+```yaml
+name: Pull Request on Branch Push
+on: [release]
+jobs:
+  pull-request-on-release:
+    name: PullRequestAction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Derive from branch name
+        run: |
+            # do custom parsing of your code / date to derive a branch from
+            PR_BRANCH_FROM=release-v$(cat VERSION)
+            ::set-env name=PULL_REQUEST_FROM_BRANCH::${PR_BRANCH_FROM}
+      - name: pull-request-action
+        uses: vsoch/pull-request-action@1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST_BRANCH: "master"
+```
+
+The above workflow is triggered on a release, so the branch will be null in the GItHub
+payload. Since we want the release PR to come from a special branch, we derive it
+in the second step, and then set the `PULL_REQUEST_FROM_BRANCH` variable in the environment
+for the next step. In the Pull Request Action step, the pull request
+will be opened from `PULL_REQUEST_FROM_BRANCH` against `PULL_REQUEST_BRANCH`, which is
+master. If we do not set this variable, the job will exit in an error,
+as it is not clear what action to take.
+
 
 ## Example use Case: Update Registry
 
