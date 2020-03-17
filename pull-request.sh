@@ -109,7 +109,13 @@ main () {
     # Get the name of the action that was triggered
     BRANCH=$(jq --raw-output .ref "${GITHUB_EVENT_PATH}");
     BRANCH=$(echo "${BRANCH/refs\/heads\//}")
-    echo "Found branch $BRANCH"
+
+    if [[ "$BRANCH" != "null" ]]; then
+        echo "Found branch $BRANCH"
+    else
+        echo "No trigger branch found in event data. Using \"$BRANCH_PREFIX\" as BRANCH instead."
+        BRANCH="$BRANCH_PREFIX"
+    fi
 
     # If it's to the target branch, ignore it
     if [[ "${BRANCH}" == "${PULL_REQUEST_BRANCH}" ]]; then
