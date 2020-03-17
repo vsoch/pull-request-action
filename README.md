@@ -50,7 +50,9 @@ the pull request. The example is [deployed here](https://github.com/vsoch/pull-r
 
 ## Examples
 
-Let's say that we are opening a pull request on the [publish]() event. This would mean
+Example workflows are provided in [examples](examples), and please contribute any
+examples that you might have to help other users! We will walk through a basic
+example here for a niche case. Let's say that we are opening a pull request on the release event. This would mean
 that the payload's branch variable would be null. We would need to define `PULL_REQUEST_FROM`. How would
 we do that? We can [set environment variables](https://help.github.com/en/actions/reference/development-tools-for-github-actions#set-an-environment-variable-set-env) for next steps. Here is an example:
 
