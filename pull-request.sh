@@ -72,12 +72,15 @@ create_pull_request() {
         RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
         RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
-        NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.[] | .number')
-        printf "Number opened for PR is ${NUMBER}\n"
+        echo ${RESPONSE}
 
-        # If there are assignees, assigm them to it
-        if [[ "${ASSIGNEES}" != "" ]]; then
+        # If there are assignees and we were successful to open, assigm them to it
+        if [[ "${ASSIGNEES}" != "" ]] && [[ "${RETVAL}" == "0" ]]; then
+
+            NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.[] | .number')
+            printf "Number opened for PR is ${NUMBER}\n"
             printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+
 
             # POST /repos/:owner/:repo/issues/:issue_number/assignees
             DATA="{\"assignees\":\"${ASSIGNEES}\"}"
@@ -168,14 +171,14 @@ main () {
             # Pull request body (optional)
             if [ -z "${PULL_REQUEST_BODY}" ]; then
                 echo "No pull request body is set, will use default."
-                PULL_REQUEST_BODY="This is an automated pull request to update the container collection ${BRANCH}"
+                PULL_REQUEST_BODY="This is an automated pull request to update from branch ${BRANCH}"
             fi
             printf "Pull request body is ${PULL_REQUEST_BODY}\n"
 
             # Pull request title (optional)
             if [ -z "${PULL_REQUEST_TITLE}" ]; then
                 printf "No pull request title is set, will use default.\n"
-                PULL_REQUEST_TITLE="Update container ${BRANCH}"
+                PULL_REQUEST_TITLE="Update from ${BRANCH}"
             fi
             printf "Pull request title is ${PULL_REQUEST_TITLE}\n"
 
