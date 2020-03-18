@@ -76,7 +76,7 @@ create_pull_request() {
         # If there are assignees and we were successful to open, assigm them to it
         if [[ "${ASSIGNEES}" != "" ]] && [[ "${RETVAL}" == "0" ]]; then
 
-            echo "${REPONSE}"
+            echo "${RESPONSE}"
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
             printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
