@@ -80,7 +80,11 @@ create_pull_request() {
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
 
-            # Parse assignees into a list
+            # Remove trailing slashes
+            ASSIGNEES="${ASSIGNEES%\"}"
+            ASSIGNEES="${ASSIGNEES#\"}"
+
+            # Parse assignees into a list            
             ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
             printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
 
