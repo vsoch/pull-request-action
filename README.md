@@ -42,12 +42,17 @@ Unlike standard actions, this action just uses variables from the environment.
 | PULL REQUEST_TITLE | the title for the pull request | false | |
 | PULL REQUEST_DRAFT | should this be a draft PR? | false | unset |
 | MAINTAINER_CANT_MODIFY | Do not allow the maintainer to modify the PR | false | unset |
+| PULL_REQUEST_ASSIGNEES | A list (string with spaces) of users to assign | false | unset |
 
 For `PULL_REQUEST_DRAFT` and `MAINTAINER_CAN_MODIFY`, these are treated as environment
 booleans. If they are defined in the environment, they trigger the "true" condition. E.g.,:
 
  - Define `MAINTAINER_CANT_MODIFY` if you don't want the maintainer to be able to modify the pull request.
  - Define `PULL_REQUEST_DRAFT` if you want the PR to be a draft.
+
+For `PULL_REQUEST_ASSIGNEES`, you can provide a string of one or more GitHub usernames to
+assign to the issue. Note that only users with push access can add assigness to 
+an issue or PR, they are ignored otherwise.
 
 The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
 the pull request. The example is [deployed here](https://github.com/vsoch/pull-request-action-example) with an example opened (and merged) [pull request here](https://github.com/vsoch/pull-request-action-example/pull/1) if needed.

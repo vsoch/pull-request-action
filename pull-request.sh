@@ -16,6 +16,7 @@ HEADER="${HEADER}; application/vnd.github.antiope-preview+json; application/vnd.
 
 # URLs
 REPO_URL="${BASE}/repos/${GITHUB_REPOSITORY}"
+ISSUE_URL=${REPO_URL}/issues
 PULLS_URL=$REPO_URL/pulls
 
 ################################################################################
@@ -51,6 +52,7 @@ create_pull_request() {
     TITLE="$(echo -n "${4}" | jq --raw-input --slurp ".")"   # pull request title
     DRAFT="${5}"                                             # pull request draft?
     MODIFY="${6}"                                            # maintainer can modify
+    ASSIGNEES="$(echo -n "${7}" | jq --raw-input --slurp ".")"
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
@@ -67,8 +69,20 @@ create_pull_request() {
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
-        curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
-        echo $?
+        RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
+        NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.[] | .number')
+        printf "Number opened for PR is ${NUMBER}\n"
+
+        # If there are assignees, assigm them to it
+        if [[ "${ASSIGNEES}" != "" ]]; then
+            printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+
+            # POST /repos/:owner/:repo/issues/:issue_number/assignees
+            DATA="{\"assignees\":\"${ASSIGNEES}\"}"
+            ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
+            curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL})
+            echo $?
+        fi
     fi
 }
 
@@ -109,6 +123,16 @@ main () {
         printf "Environment variable MAINTAINER_CANT_MODIFY set to a value: maintainer will not be able to modify.\n"
         MODIFY="false"
     fi
+
+    # Assignees
+    ASSIGNEES=""
+    if [ -z "${PULL_REQUEST_ASSIGNEES}" ]; then
+        printf "PULL_REQUEST_ASSIGNEES is not set, no assignees.\n"
+    else
+        printf "PULL_REQUEST_ASSIGNEES is set, ${PULL_REQUEST_ASSIGNEES}\n"
+        ASSIGNEES="${PULL_REQUEST_ASSIGNEES}"
+    fi
+
 
     # The user is allowed to explicitly set the name of the branch
     if [ -z "${PULL_REQUEST_FROM_BRANCH}" ]; then
@@ -154,7 +178,8 @@ main () {
             printf "Pull request title is ${PULL_REQUEST_TITLE}\n"
 
             create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" \
-                                "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}" "${MODIFY}"
+                                "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}" "${MODIFY}" \
+                                "${ASSIGNEES}"
 
         fi
 
