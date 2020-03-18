@@ -1,0 +1,17 @@
+name: Pull Request on Branch Push
+on:
+  push:
+    branches-ignore:
+      - devel
+jobs:
+  auto-pull-request:
+    name: PullRequestAction
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull-request-action
+        uses: vsoch/pull-request-action@add/assignees
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_PREFIX: "update/"
+          PULL_REQUEST_BRANCH: "master"
+          PULL_REQUEST_ASSIGNEES: vsoch

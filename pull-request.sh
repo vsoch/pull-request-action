@@ -37,7 +37,7 @@ check_events_json() {
 
     if [[ ! -f "${GITHUB_EVENT_PATH}" ]]; then
         printf "Cannot find Github events file at ${GITHUB_EVENT_PATH}\n";
-        exit 1;
+        exit 1
     fi
     printf "Found ${GITHUB_EVENT_PATH}\n";
 
@@ -80,9 +80,8 @@ create_pull_request() {
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
 
-            # Remove trailing slashes
-            ASSIGNEES="${ASSIGNEES%\"}"
-            ASSIGNEES="${ASSIGNEES#\"}"
+            # Remove leading and trailing quotes
+            ASSIGNEES=$(echo "$ASSIGNEES" | sed -e 's/^"//' -e 's/"$//')
 
             # Parse assignees into a list            
             ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
@@ -94,7 +93,6 @@ create_pull_request() {
             ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
             curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
             printf "$?\n"
-            exit 1;
         fi
     fi
 }
