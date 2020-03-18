@@ -70,6 +70,8 @@ create_pull_request() {
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
         RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
+        RETVAL=$?
+        printf "Pull request return code: ${RETVAL}\n"
         NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.[] | .number')
         printf "Number opened for PR is ${NUMBER}\n"
 
@@ -80,8 +82,8 @@ create_pull_request() {
             # POST /repos/:owner/:repo/issues/:issue_number/assignees
             DATA="{\"assignees\":\"${ASSIGNEES}\"}"
             ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
-            curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL})
-            echo $?
+            curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
+            printf "$?\n"
         fi
     fi
 }
