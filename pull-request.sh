@@ -72,7 +72,6 @@ create_pull_request() {
         RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
         RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
-        echo ${RESPONSE}
 
         # If there are assignees and we were successful to open, assigm them to it
         if [[ "${ASSIGNEES}" != "" ]] && [[ "${RETVAL}" == "0" ]]; then
