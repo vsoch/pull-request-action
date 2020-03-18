@@ -86,9 +86,11 @@ create_pull_request() {
 
             # POST /repos/:owner/:repo/issues/:issue_number/assignees
             DATA="{\"assignees\":[${ASSIGNEES}]}"
+            echo "${DATA}"
             ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
             curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
             printf "$?\n"
+            exit 1;
         fi
     fi
 }
