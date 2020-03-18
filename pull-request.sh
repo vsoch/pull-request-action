@@ -79,11 +79,13 @@ create_pull_request() {
             echo "${RESPONSE}"
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
+
+            # Parse assignees into a list
+            ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
             printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
 
-
             # POST /repos/:owner/:repo/issues/:issue_number/assignees
-            DATA="{\"assignees\":\"${ASSIGNEES}\"}"
+            DATA="{\"assignees\":[${ASSIGNEES}]}"
             ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
             curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
             printf "$?\n"
