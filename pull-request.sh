@@ -49,16 +49,10 @@ create_pull_request() {
     TARGET="$(echo -n "${2}" | jq --raw-input --slurp ".")"  # pull request TO this target
     BODY="$(echo -n "${3}" | jq --raw-input --slurp ".")"    # this is the content of the message
     TITLE="$(echo -n "${4}" | jq --raw-input --slurp ".")"   # pull request title
-
-    # JSON boolean
-    if [[ "${5}" ==  "true" ]]; then                         # if PRs are draft
-        DRAFT="true";
-    else
-        DRAFT="false";
-    fi
+    DRAFT="${5}"                                             # pull request draft?
+    MODIFY="${6}"                                            # maintainer can modify
 
     # Check if the branch already has a pull request open
-
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
     RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
@@ -71,7 +65,7 @@ create_pull_request() {
     # Option 2: Open a new pull request
     else
         # Post the pull request
-        DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}}"
+        DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
         curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL}
         echo $?
@@ -98,12 +92,22 @@ main () {
     fi
     printf "Pull requests will go to ${PULL_REQUEST_BRANCH}\n"
 
+    # Pull request draft
     if [ -z "${PULL_REQUEST_DRAFT}" ]; then
         printf "No explicit preference for draft PR: created PRs will be normal PRs.\n"
         PULL_REQUEST_DRAFT="false"
     else
         printf "Environment variable PULL_REQUEST_DRAFT set to a value: created PRs will be draft PRs.\n"
         PULL_REQUEST_DRAFT="true"
+    fi
+
+    # Maintainer can modify, defaults to CAN, unless user sets MAINTAINER_CANT_MODIFY
+    if [ -z "${MAINTAINER_CANT_MODIFY}" ]; then
+        printf "No explicit preference for maintainer being able to modify: default is true.\n"
+        MODIFY="true"
+    else
+        printf "Environment variable MAINTAINER_CANT_MODIFY set to a value: maintainer will not be able to modify.\n"
+        MODIFY="false"
     fi
 
     # The user is allowed to explicitly set the name of the branch
@@ -149,7 +153,8 @@ main () {
             fi
             printf "Pull request title is ${PULL_REQUEST_TITLE}\n"
 
-            create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}"
+            create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" \
+                                "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}" "${MODIFY}"
 
         fi
 
