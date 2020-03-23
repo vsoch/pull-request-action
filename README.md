@@ -39,8 +39,8 @@ Unlike standard actions, this action just uses variables from the environment.
 | PULL_REQUEST_BRANCH | open pull request against this branch | false | master |
 | PULL_REQUEST_FROM_BRANCH | if a branch isn't found in your GitHub payload, use this branch | false | |
 | PULL_REQUEST_BODY | the body for the pull request | false | |
-| PULL REQUEST_TITLE | the title for the pull request | false | |
-| PULL REQUEST_DRAFT | should this be a draft PR? | false | unset |
+| PULL_REQUEST_TITLE | the title for the pull request | false | |
+| PULL_REQUEST_DRAFT | should this be a draft PR? | false | unset |
 | MAINTAINER_CANT_MODIFY | Do not allow the maintainer to modify the PR | false | unset |
 | PULL_REQUEST_ASSIGNEES | A list (string with spaces) of users to assign | false | unset |
 
