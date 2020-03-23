@@ -53,6 +53,8 @@ create_pull_request() {
     DRAFT="${5}"                                             # pull request draft?
     MODIFY="${6}"                                            # maintainer can modify
     ASSIGNEES="$(echo -n "${7}" | jq --raw-input --slurp ".")"
+    REVIEWERS="$(echo -n "${8}" | jq --raw-input --slurp ".")"
+    TEAM_REVIEWERS="$(echo -n "${9}" | jq --raw-input --slurp ".")"
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
@@ -73,26 +75,54 @@ create_pull_request() {
         RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
 
-        # If there are assignees and we were successful to open, assigm them to it
-        if [[ "${ASSIGNEES}" != "" ]] && [[ "${RETVAL}" == "0" ]]; then
+        # if we were successful to open, add assignees and reviewers
+        if [[ "${RETVAL}" == "0" ]]; then
 
             echo "${RESPONSE}"
+
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
 
-            # Remove leading and trailing quotes
-            ASSIGNEES=$(echo "$ASSIGNEES" | sed -e 's/^"//' -e 's/"$//')
+            # Assignees are defined
+            if [[ "$ASSIGNEES" != '""' ]; then
 
-            # Parse assignees into a list            
-            ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
-            printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+                # Remove leading and trailing quotes
+                ASSIGNEES=$(echo "$ASSIGNEES" | sed -e 's/^"//' -e 's/"$//')
 
-            # POST /repos/:owner/:repo/issues/:issue_number/assignees
-            DATA="{\"assignees\":[${ASSIGNEES}]}"
-            echo "${DATA}"
-            ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
-            curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
-            printf "$?\n"
+                # Parse assignees into a list            
+                ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+                printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+
+                # POST /repos/:owner/:repo/issues/:issue_number/assignees
+                DATA="{\"assignees\":[${ASSIGNEES}]}"
+                echo "${DATA}"
+                ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
+                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
+                printf "$?\n"
+            fi
+
+            # Reviewers or team reviewers are defined
+            if [[ "$REVIEWERS" != '""' ]] || [[ "$TEAM_REVIEWERS" != '""' ]]; then
+
+                printf "Found reviewers: ${REVIEWERS} and team reviewers: ${TEAM_REVIEWERS}\n"
+
+                REVIEWERS=$(echo "$REVIEWERS" | sed -e 's/^"//' -e 's/"$//')
+                REVIEWERS=$(echo $REVIEWERS | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+                TEAM_REVIEWERS=$(echo "$TEAM_REVIEWERS" | sed -e 's/^"//' -e 's/"$//')
+                TEAM_REVIEWERS=$(echo $TEAM_REVIEWERS | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+
+                # If either is empty, don't include emty string (provide empty list)
+                if [[ "$REVIEWERS" == '""' ]]; then REVIEWERS=; fi
+                if [[ "$TEAM_REVIEWERS" == '""' ]]; then TEAM_REVIEWERS=; fi
+
+                # POST /repos/:owner/:repo/pulls/:pull_number/requested_reviewers
+                REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
+                DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
+                echo "${DATA}"
+                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
+                printf "$?\n"
+
+            fi
         fi
     fi
 }
@@ -144,7 +174,22 @@ main () {
         ASSIGNEES="${PULL_REQUEST_ASSIGNEES}"
     fi
 
-
+    # Reviewers (individual and team)
+    TEAM_REVIEWERS=""
+    REVIEWERS=""
+    if [ -z "${PULL_REQUEST_REVIEWERS}" ]; then
+        printf "PULL_REQUEST_REVIEWERS is not set, no reviewers.\n"
+    else
+        printf "PULL_REQUEST_REVIEWERS is set, ${PULL_REQUEST_REVIEWERS}\n"
+        REVIEWERS="${PULL_REQUEST_REVIEWERS}"
+    fi
+    if [ -z "${PULL_REQUEST_TEAM_REVIEWERS}" ]; then
+        printf "PULL_REQUEST_TEAM_REVIEWERS is not set, no team reviewers.\n"
+    else
+        printf "PULL_REQUEST_TEAM_REVIEWERS is set, ${PULL_REQUEST_TEAM_REVIEWERS}\n"
+        TEAM_REVIEWERS="${PULL_REQUEST_TEAM_REVIEWERS}"
+    fi
+    
     # The user is allowed to explicitly set the name of the branch
     if [ -z "${PULL_REQUEST_FROM_BRANCH}" ]; then
         printf "PULL_REQUEST_FROM_BRANCH is not set, checking branch in payload.\n"
@@ -190,7 +235,7 @@ main () {
 
             create_pull_request "${BRANCH}" "${PULL_REQUEST_BRANCH}" "${PULL_REQUEST_BODY}" \
                                 "${PULL_REQUEST_TITLE}" "${PULL_REQUEST_DRAFT}" "${MODIFY}" \
-                                "${ASSIGNEES}"
+                                "${ASSIGNEES}" "${REVIEWERS}" "${TEAM_REVIEWERS}"
 
         fi
 
