@@ -84,7 +84,7 @@ create_pull_request() {
             printf "Number opened for PR is ${NUMBER}\n"
 
             # Assignees are defined
-            if [[ "$ASSIGNEES" != '""' ]; then
+            if [[ "$ASSIGNEES" != '""' ]]; then
 
                 # Remove leading and trailing quotes
                 ASSIGNEES=$(echo "$ASSIGNEES" | sed -e 's/^"//' -e 's/"$//')
