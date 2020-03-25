@@ -72,12 +72,16 @@ create_pull_request() {
         RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
         RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
+        
+        # Set the PR number in the env, and as an output
+        NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
+        echo ::set-env name=PULL_REQUEST_NUMBER::${NUMBER}
+        echo ::set-output name=pr_number::${NUMBER}
 
         # If there are assignees and we were successful to open, assigm them to it
         if [[ "${ASSIGNEES}" != "" ]] && [[ "${RETVAL}" == "0" ]]; then
 
             echo "${RESPONSE}"
-            NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
 
             # Remove leading and trailing quotes
