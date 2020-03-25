@@ -29,7 +29,7 @@ jobs:
           PULL_REQUEST_BRANCH: "master"
 ```
 
-## Environment Variables
+## Environment Variable Inputs
 
 Unlike standard actions, this action just uses variables from the environment.
 
@@ -60,6 +60,19 @@ an issue or PR, they are ignored otherwise.
 The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
 the pull request. The example is [deployed here](https://github.com/vsoch/pull-request-action-example) with an example opened (and merged) [pull request here](https://github.com/vsoch/pull-request-action-example/pull/1) if needed.
 
+## Outputs
+
+The action sets a few useful output and environment variables. An output can
+be referenced later as `${{ steps.<stepname>.outputs.<output-name> }}`.
+An environment variable of course can be referenced as you usually would.
+
+| Name | Description | Environment | 
+|------|-------------|-------------|
+| pull_request_number |If the pull request is opened, this is the number for it. | PULL_REQUEST_NUMBER |
+| pull_request_url |If the pull request is opened, the html url for it. | PULL_REQUEST_URL |
+| pull_request_return_code | Return code for the pull request | PULL_REQUEST_RETURN_CODE |
+| assignees_return_code | Return code for the assignees request | ASSIGNEES_RETURN_CODE |
+| reviewers_return_code | Return code for the reviewers request | REVIEWERS_RETURN_CODE |
 
 ## Examples
 

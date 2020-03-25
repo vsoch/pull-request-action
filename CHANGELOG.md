@@ -14,5 +14,6 @@ represented by the pull requests that fixed them. Critical items to know are:
 Versions correspond with GitHub releases that can be referenced with @ using actions.
 
 ## [master](https://github.com/vsoch/pull-request-action/tree/master) (master)
+  - output and environment variables for PR number and return codes (1.0.5)
   - added support for reviewer (individual and team) assignments (1.0.4)
   - added support for maintainer can modify and assignees (1.0.3)
