@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: pull-request-action
-        uses: vsoch/pull-request-action@1.0.2
+        uses: vsoch/pull-request-action@1.0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_PREFIX: "update/"
@@ -106,7 +106,7 @@ jobs:
             PR_BRANCH_FROM=release-v$(cat VERSION)
             ::set-env name=PULL_REQUEST_FROM_BRANCH::${PR_BRANCH_FROM}
       - name: pull-request-action
-        uses: vsoch/pull-request-action@1.0.2
+        uses: vsoch/pull-request-action@1.0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST_BRANCH: "master"
