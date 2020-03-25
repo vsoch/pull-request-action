@@ -74,6 +74,14 @@ An environment variable of course can be referenced as you usually would.
 | assignees_return_code | Return code for the assignees request | ASSIGNEES_RETURN_CODE |
 | reviewers_return_code | Return code for the reviewers request | REVIEWERS_RETURN_CODE |
 
+See the [examples/outputs-example.yml](examples/outputs-example.yml) for how this works. 
+In this example, we can reference `${{ steps.pull_request.outputs.pull_request_url }}`
+in either another environment variable declaration, or within a run statement to access
+our variable `pull_request_url` that was generated in a step with id `pull_request`.
+The screenshot below shows the example in action to interact with outputs in several ways.
+
+![img/outputs.png](img/outputs.png)
+
 ## Examples
 
 Example workflows are provided in [examples](examples), and please contribute any
