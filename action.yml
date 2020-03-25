@@ -7,3 +7,14 @@ runs:
 branding:
   icon: 'activity'  
   color: 'yellow'
+outputs:
+  pull_request_number:
+    description: 'If the pull request is opened, this is the number for it.'
+  pull_request_url:
+    description: 'If the pull request is opened, the html url for it.'
+  pull_request_return_code:
+    description: 'The pull request return code.'
+  assignees_return_code:
+    description: 'The add assignees post return code.'
+  reviewers_return_code:
+    description: 'The add reviewers post return code.'

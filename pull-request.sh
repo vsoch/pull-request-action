@@ -82,6 +82,14 @@ create_pull_request() {
 
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
+            HTML_URL=$(echo "${RESPONSE}" | jq --raw-output '.html_url')
+
+            echo ::set-env name=PULL_REQUEST_NUMBER::${NUMBER}
+            echo ::set-output name=pull_request_number::${NUMBER}
+            echo ::set-env name=PULL_REQUEST_RETURN_CODE::${RETVAL}
+            echo ::set-output name=pull_request_return_code::${RETVAL}
+            echo ::set-env name=PULL_REQUEST_URL::${HTML_URL}
+            echo ::set-output name=pull_request_url::${HTML_URL}
 
             # Assignees are defined
             if [[ "$ASSIGNEES" != '""' ]]; then
@@ -98,7 +106,11 @@ create_pull_request() {
                 echo "${DATA}"
                 ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
                 curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
-                printf "$?\n"
+                RETVAL=$?
+                printf "Add assignees return code: ${RETVAL}\n"
+                echo ::set-env name=ASSIGNEES_RETURN_CODE::${RETVAL}
+                echo ::set-output name=assignees_return_code::${RETVAL}
+
             fi
 
             # Reviewers or team reviewers are defined
@@ -120,7 +132,11 @@ create_pull_request() {
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
                 echo "${DATA}"
                 curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
-                printf "$?\n"
+
+                RETVAL=$?
+                printf "Add reviewers return code: ${RETVAL}\n"
+                echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
+                echo ::set-output name=reviewers_return_code::${RETVAL}
 
             fi
         fi
