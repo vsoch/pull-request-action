@@ -98,7 +98,7 @@ create_pull_request() {
                 ASSIGNEES=$(echo "$ASSIGNEES" | sed -e 's/^"//' -e 's/"$//')
 
                 # Parse assignees into a list            
-                ASSIGNEES=$(echo $ASSIGNEES | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+                ASSIGNEES=$(echo $ASSIGNEES | printf '"%s"\n' $ASSIGNEES|paste -sd, -)
                 printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
 
                 # POST /repos/:owner/:repo/issues/:issue_number/assignees
@@ -119,9 +119,9 @@ create_pull_request() {
                 printf "Found reviewers: ${REVIEWERS} and team reviewers: ${TEAM_REVIEWERS}\n"
 
                 REVIEWERS=$(echo "$REVIEWERS" | sed -e 's/^"//' -e 's/"$//')
-                REVIEWERS=$(echo $REVIEWERS | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+                REVIEWERS=$(echo $REVIEWERS | printf '"%s"\n' $REVIEWERS|paste -sd, -)
                 TEAM_REVIEWERS=$(echo "$TEAM_REVIEWERS" | sed -e 's/^"//' -e 's/"$//')
-                TEAM_REVIEWERS=$(echo $TEAM_REVIEWERS | sed -e 's/\(\w*\)/,"\1"/g' | cut -d , -f 2-)
+                TEAM_REVIEWERS=$(echo $TEAM_REVIEWERS | printf '"%s"\n' $TEAM_REVIEWERS|paste -sd, -)
 
                 # If either is empty, don't include emty string (provide empty list)
                 if [[ "$REVIEWERS" == '""' ]]; then REVIEWERS=; fi

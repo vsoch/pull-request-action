@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: pull-request-action
         id: pull_request
-        uses: vsoch/pull-request-action@1.0.5
+        uses: vsoch/pull-request-action@1.0.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_PREFIX: "update/"
