@@ -1,0 +1,49 @@
+name: derive-branch-from-environment
+
+on:
+  schedule:
+    # Weekly
+    - cron: 0 0 * * 0
+
+jobs:
+  DoSomeUpdate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v1
+    - name: Install or Do Something to Change repository
+      run: |
+         echo "This is a new file." >> newfile.txt
+
+    - name: Checkout New Branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH_AGAINST: "master"
+      run: |
+        printf "GitHub Actor: ${GITHUB_ACTOR}\n"
+        export BRANCH_FROM="update/newfile-$(date '+%Y-%m-%d')"
+        git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        git branch
+        git checkout -b "${BRANCH_FROM}" || git checkout "${BRANCH_FROM}"
+        git branch
+
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@users.noreply.github.com"
+
+        git add newfile.txt
+
+        if git diff-index --quiet HEAD --; then
+           printf "No changes\n"
+        else
+           printf "Changes\n"
+           git commit -m "Automated deployment to update software database $(date '+%Y-%m-%d')"
+           git push origin "${BRANCH_FROM}"
+        fi
+        # Here is where we are setting the environment variable!
+        echo "::set-env name=PULL_REQUEST_FROM_BRANCH::${BRANCH_FROM}"
+
+    - name: Open Pull Request
+      uses: vsoch/pull-request-action@1.0.6
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PULL_REQUEST_BRANCH: "master"
