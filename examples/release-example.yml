@@ -38,8 +38,10 @@ jobs:
       run: |
         git push --force "https://${{ github.actor }}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git" "HEAD:${{ steps.data.outputs.suite_update_branch }}"
 
+    # Important! Update to a released version instead of master 
+    # https://github.com/vsoch/pull-request-action/releases/
     - name: Open a PR to the default branch
-      uses: vsoch/pull-request-action@1.0.2
+      uses: vsoch/pull-request-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PULL_REQUEST_FROM_BRANCH: "${{ steps.data.outputs.suite_update_branch }}"

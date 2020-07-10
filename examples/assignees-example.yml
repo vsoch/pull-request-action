@@ -8,8 +8,11 @@ jobs:
     name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
+
+        # Important! Update to a released version instead of master 
+        # https://github.com/vsoch/pull-request-action/releases/
       - name: pull-request-action
-        uses: vsoch/pull-request-action@1.0.3
+        uses: vsoch/pull-request-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_PREFIX: "update/"
