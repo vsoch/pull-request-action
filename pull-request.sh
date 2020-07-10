@@ -58,7 +58,7 @@ create_pull_request() {
 
     # Do we want a different username for GitHub actor?
     ACTOR="${GITHUB_ACTOR}"
-    if [ -z "${PULL_REQUEST_ACTOR}" ]; then
+    if [ ! -z "${PULL_REQUEST_ACTOR}" ]; then
         ACTOR="${PULL_REQUEST_ACTOR}"
     fi
 
