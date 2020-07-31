@@ -71,6 +71,7 @@ create_pull_request() {
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
+    echo "curl -fsSL PULLS"
     RESPONSE=$(safe_curl -X GET --data "${DATA}" ${PULLS_URL})
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
@@ -83,7 +84,7 @@ create_pull_request() {
     else
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
-        printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
+        printf "curl -fsSL --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
         RESPONSE=$(safe_curl -X POST --data "${DATA}" ${PULLS_URL})
         printf "Pull request return code: ${RETVAL}\n"
 
