@@ -43,6 +43,8 @@ check_events_json() {
 
 }
 
+export RETVAL=0
+
 create_pull_request() {
 
     # JSON strings
@@ -58,7 +60,9 @@ create_pull_request() {
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
-    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
+    if ! RESPONSE=$(safe_curl -X GET --data "${DATA}" ${PULLS_URL}); then
+        curl_die "Error ${?} getting open PRs: ${RESPONSE}"
+    fi
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
 
@@ -70,15 +74,12 @@ create_pull_request() {
     else
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
-        printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
-        RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
-        RETVAL=$?
-        printf "Pull request return code: ${RETVAL}\n"
-
-        # if we were successful to open, add assignees and reviewers
-        if [[ "${RETVAL}" == "0" ]]; then
-
+        if ! RESPONSE=$(safe_curl -X POST --data "${DATA}" ${PULLS_URL}); then
+            curl_die "Error ${?} creating PR: ${RESPONSE}"
+        else
+            echo "::group::github response"
             echo "${RESPONSE}"
+            echo "::endgroup::github response"
 
             NUMBER=$(echo "${RESPONSE}" | jq --raw-output '.number')
             printf "Number opened for PR is ${NUMBER}\n"
@@ -105,12 +106,16 @@ create_pull_request() {
                 DATA="{\"assignees\":[${ASSIGNEES}]}"
                 echo "${DATA}"
                 ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
-                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
-                RETVAL=$?
+                RETVAL=0
+                if ! RESPONSE="$(safe_curl -X POST --data "${DATA}" ${ASSIGNEES_URL})"; then
+                    RETVAL=$?
+                fi
                 printf "Add assignees return code: ${RETVAL}\n"
                 echo ::set-env name=ASSIGNEES_RETURN_CODE::${RETVAL}
                 echo ::set-output name=assignees_return_code::${RETVAL}
-
+                if [[ $RETVAL != 0 ]]; then
+                    curl_die "Error adding assignees: $RESPONSE"
+                fi
             fi
 
             # Reviewers or team reviewers are defined
@@ -130,14 +135,17 @@ create_pull_request() {
                 # POST /repos/:owner/:repo/pulls/:pull_number/requested_reviewers
                 REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
-                echo "${DATA}"
-                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
-
-                RETVAL=$?
-                printf "Add reviewers return code: ${RETVAL}\n"
+                RETVAL=0
+                if ! RESPONSE=$(safe_curl -X POST --data "${DATA}" ${REVIEWERS_URL}); then
+                    RETVAL=$?
+                fi
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
+                printf "Add reviewers return code: ${RETVAL}\n"
 
+                if [[ $RETVAL != 0 ]]; then
+                    curl_die "Error ${RETVAL} setting reviewers: ${RESPONSE}"
+                fi
             fi
         fi
     fi
@@ -205,7 +213,7 @@ main () {
         printf "PULL_REQUEST_TEAM_REVIEWERS is set, ${PULL_REQUEST_TEAM_REVIEWERS}\n"
         TEAM_REVIEWERS="${PULL_REQUEST_TEAM_REVIEWERS}"
     fi
-    
+
     # The user is allowed to explicitly set the name of the branch
     if [ -z "${PULL_REQUEST_FROM_BRANCH}" ]; then
         printf "PULL_REQUEST_FROM_BRANCH is not set, checking branch in payload.\n"
@@ -213,7 +221,7 @@ main () {
         BRANCH=$(echo "${BRANCH/refs\/heads\//}")
     else
         printf "PULL_REQUEST_FROM_BRANCH is set.\n"
-        BRANCH="${PULL_REQUEST_FROM_BRANCH}"        
+        BRANCH="${PULL_REQUEST_FROM_BRANCH}"
     fi
 
     # At this point, we must have a branch
@@ -254,7 +262,20 @@ main () {
                                 "${ASSIGNEES}" "${REVIEWERS}" "${TEAM_REVIEWERS}"
 
         fi
+    fi
+}
 
+# Run curl with default values
+safe_curl() {
+    printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
+    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "$GITHUB_ACTOR" "$@"
+}
+
+# Print the response and, if FAIL_ON_ERROR, exit with an error
+curl_die() {
+    echo "$@"
+    if [[ -n $FAIL_ON_ERROR ]]; then
+        exit 1
     fi
 }
 

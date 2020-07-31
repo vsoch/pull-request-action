@@ -45,9 +45,11 @@ Unlike standard actions, this action just uses variables from the environment.
 | PULL_REQUEST_ASSIGNEES | A list (string with spaces) of users to assign | false | unset |
 | PULL_REQUEST_REVIEWERS | A list (string with spaces) of users to assign review | false | unset |
 | PULL_REQUEST_TEAM_REVIEWERS | A list (string with spaces) of teams to assign review | false | unset |
+| FAIL_ON_ERROR | If any value is present this causes the action to error if PR creation fails for any reason | unset |
 
-For `PULL_REQUEST_DRAFT` and `MAINTAINER_CANT_MODIFY`, these are treated as environment
-booleans. If they are defined in the environment, they trigger the "true" condition. E.g.,:
+For `PULL_REQUEST_DRAFT`, `FAIL_ON_ERROR`, and `MAINTAINER_CANT_MODIFY`, these are
+treated as environment booleans. If they are defined in the environment, they trigger the
+"true" condition. E.g.,:
 
  - Define `MAINTAINER_CANT_MODIFY` if you don't want the maintainer to be able to modify the pull request.
  - Define `PULL_REQUEST_DRAFT` if you want the PR to be a draft.
