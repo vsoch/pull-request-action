@@ -44,7 +44,11 @@ check_events_json() {
 }
 
 safe_curl() {
-    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" "$@"
+    local fail=
+    if [[ -n ${FAIL_ON_ERROR:-} ]]; then
+        fail=-f
+    fi
+    curl $fail -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" "$@"
 }
 
 create_pull_request() {
