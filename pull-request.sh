@@ -43,12 +43,17 @@ check_events_json() {
 
 }
 
+CURL_FAILED=false
+RETVAL=0
+
 safe_curl() {
-    local fail=
-    if [[ -n ${FAIL_ON_ERROR:-} ]]; then
-        fail=-f
+    set +e
+    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" "$@"
+    RETVAL=$?
+    if [[ $RETVAL != 0 ]]; then
+        CURL_FAILED=true
     fi
-    curl $fail -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" "$@"
+    set -e
 }
 
 create_pull_request() {
@@ -80,11 +85,10 @@ create_pull_request() {
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
         RESPONSE=$(safe_curl -X POST --data "${DATA}" ${PULLS_URL})
-        RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
 
         # if we were successful to open, add assignees and reviewers
-        if [[ "${RETVAL}" == "0" ]]; then
+        if ! ${CURL_FAILED}; then
 
             echo "${RESPONSE}"
 
@@ -145,8 +149,13 @@ create_pull_request() {
                 printf "Add reviewers return code: ${RETVAL}\n"
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
-
             fi
+        fi
+    fi
+
+    if ${CURL_FAILED}; then
+        if [[ -n ${FAIL_ON_ERROR:-} ]]; then
+            exit 1
         fi
     fi
 }
@@ -262,7 +271,6 @@ main () {
                                 "${ASSIGNEES}" "${REVIEWERS}" "${TEAM_REVIEWERS}"
 
         fi
-
     fi
 }
 
