@@ -131,7 +131,7 @@ create_pull_request() {
                 REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
                 echo "${DATA}"
-                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
+                curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
 
                 RETVAL=$?
                 printf "Add reviewers return code: ${RETVAL}\n"
