@@ -43,6 +43,10 @@ check_events_json() {
 
 }
 
+safe_curl() {
+    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" "$@"
+}
+
 create_pull_request() {
 
     # JSON strings
@@ -58,7 +62,7 @@ create_pull_request() {
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
-    RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X GET --data "${DATA}" ${PULLS_URL})
+    RESPONSE=$(safe_curl -X GET --data "${DATA}" ${PULLS_URL})
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
 
@@ -71,7 +75,7 @@ create_pull_request() {
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         printf "curl --user ${GITHUB_ACTOR} -X POST --data ${DATA} ${PULLS_URL}\n"
-        RESPONSE=$(curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${PULLS_URL})
+        RESPONSE=$(safe_curl -X POST --data "${DATA}" ${PULLS_URL})
         RETVAL=$?
         printf "Pull request return code: ${RETVAL}\n"
 
@@ -105,7 +109,7 @@ create_pull_request() {
                 DATA="{\"assignees\":[${ASSIGNEES}]}"
                 echo "${DATA}"
                 ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
-                curl -sSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${ASSIGNEES_URL}
+                safe_curl -X POST --data "${DATA}" ${ASSIGNEES_URL}
                 RETVAL=$?
                 printf "Add assignees return code: ${RETVAL}\n"
                 echo ::set-env name=ASSIGNEES_RETURN_CODE::${RETVAL}
@@ -131,7 +135,7 @@ create_pull_request() {
                 REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
                 echo "${DATA}"
-                curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "${GITHUB_ACTOR}" -X POST --data "${DATA}" ${REVIEWERS_URL}
+                safe_curl -X POST --data "${DATA}" ${REVIEWERS_URL}
 
                 RETVAL=$?
                 printf "Add reviewers return code: ${RETVAL}\n"
