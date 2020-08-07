@@ -268,7 +268,7 @@ main () {
 # Run curl with default values
 safe_curl() {
     printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
-    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" --user "$GITHUB_ACTOR" "$@"
+    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
 }
 
 # Print the response and, if FAIL_ON_ERROR, exit with an error
