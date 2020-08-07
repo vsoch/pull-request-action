@@ -63,7 +63,7 @@ create_pull_request() {
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
     if ! RESPONSE=$(curl_wrapper -X GET --data "${DATA}" ${PULLS_URL}); then
         RETVAL=$?
-        abort_if_fail "Error ${?} getting open PRs: ${RESPONSE}"
+        abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}"
     fi
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
@@ -77,7 +77,8 @@ create_pull_request() {
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
         if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${PULLS_URL}); then
-            abort_if_fail "Error ${?} creating PR: ${RESPONSE}"
+            RETVAL=$?
+            abort_if_fail "Error ${RETVAL} creating PR: ${RESPONSE}"
         else
             echo "::group::github response"
             echo "${RESPONSE}"
@@ -116,7 +117,7 @@ create_pull_request() {
                 echo ::set-env name=ASSIGNEES_RETURN_CODE::${RETVAL}
                 echo ::set-output name=assignees_return_code::${RETVAL}
                 if [[ "${RETVAL}" != 0 ]]; then
-                    abort_if_fail "Error adding assignees: $RESPONSE"
+                    abort_if_fail "Error ${RETVAL} adding assignees: $RESPONSE"
                 fi
             fi
 
@@ -272,12 +273,14 @@ curl_wrapper() {
     printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
     set +e
     curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
-    return $?
+    ret=$?
+    set -e
+    return $ret
 }
 
 # Print the response and, if FAIL_ON_ERROR, exit with an error
 abort_if_fail() {
-    echo "$@"
+    printf "%s\n" "$*"
     if [[ -n "${FAIL_ON_ERROR}" ]]; then
         exit 1
     fi
