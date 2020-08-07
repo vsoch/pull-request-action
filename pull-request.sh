@@ -43,7 +43,6 @@ check_events_json() {
 
 }
 
-export RETVAL=0
 
 create_pull_request() {
 
@@ -58,10 +57,13 @@ create_pull_request() {
     REVIEWERS="$(echo -n "${8}" | jq --raw-input --slurp ".")"
     TEAM_REVIEWERS="$(echo -n "${9}" | jq --raw-input --slurp ".")"
 
+    RETVAL=0
+
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
-    if ! RESPONSE=$(safe_curl -X GET --data "${DATA}" ${PULLS_URL}); then
-        curl_die "Error ${?} getting open PRs: ${RESPONSE}"
+    if ! RESPONSE=$(curl_wrapper -X GET --data "${DATA}" ${PULLS_URL}); then
+        RETVAL=$?
+        abort_if_fail "Error ${?} getting open PRs: ${RESPONSE}"
     fi
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
@@ -74,8 +76,8 @@ create_pull_request() {
     else
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
-        if ! RESPONSE=$(safe_curl -X POST --data "${DATA}" ${PULLS_URL}); then
-            curl_die "Error ${?} creating PR: ${RESPONSE}"
+        if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${PULLS_URL}); then
+            abort_if_fail "Error ${?} creating PR: ${RESPONSE}"
         else
             echo "::group::github response"
             echo "${RESPONSE}"
@@ -107,14 +109,14 @@ create_pull_request() {
                 echo "${DATA}"
                 ASSIGNEES_URL="${ISSUE_URL}/${NUMBER}/assignees"
                 RETVAL=0
-                if ! RESPONSE="$(safe_curl -X POST --data "${DATA}" ${ASSIGNEES_URL})"; then
+                if ! RESPONSE="$(curl_wrapper -X POST --data "${DATA}" ${ASSIGNEES_URL})"; then
                     RETVAL=$?
                 fi
                 printf "Add assignees return code: ${RETVAL}\n"
                 echo ::set-env name=ASSIGNEES_RETURN_CODE::${RETVAL}
                 echo ::set-output name=assignees_return_code::${RETVAL}
-                if [[ $RETVAL != 0 ]]; then
-                    curl_die "Error adding assignees: $RESPONSE"
+                if [[ "${RETVAL}" != 0 ]]; then
+                    abort_if_fail "Error adding assignees: $RESPONSE"
                 fi
             fi
 
@@ -136,15 +138,15 @@ create_pull_request() {
                 REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
                 RETVAL=0
-                if ! RESPONSE=$(safe_curl -X POST --data "${DATA}" ${REVIEWERS_URL}); then
+                if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL}); then
                     RETVAL=$?
                 fi
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
                 printf "Add reviewers return code: ${RETVAL}\n"
 
-                if [[ $RETVAL != 0 ]]; then
-                    curl_die "Error ${RETVAL} setting reviewers: ${RESPONSE}"
+                if [[ "${RETVAL}" != 0 ]]; then
+                    abort_if_fail "Error ${RETVAL} setting reviewers: ${RESPONSE}"
                 fi
             fi
         fi
@@ -266,15 +268,17 @@ main () {
 }
 
 # Run curl with default values
-safe_curl() {
+curl_wrapper() {
     printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
+    set +e
     curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
+    return $?
 }
 
 # Print the response and, if FAIL_ON_ERROR, exit with an error
-curl_die() {
+abort_if_fail() {
     echo "$@"
-    if [[ -n $FAIL_ON_ERROR ]]; then
+    if [[ -n "${FAIL_ON_ERROR}" ]]; then
         exit 1
     fi
 }
