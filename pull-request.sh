@@ -270,11 +270,9 @@ main () {
 
 # Run curl with default values
 curl_wrapper() {
-    printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
-    set +e
-    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
+    printf "curl -fsSL -H 'AUTH...' %s\n" "$*"
+    curl -fsSL -H "${AUTH_HEADER}" --user "${GITHUB_ACTOR}" -H "${HEADER}" "$@"
     ret=$?
-    set -e
     return $ret
 }
 
