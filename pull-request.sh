@@ -141,6 +141,12 @@ create_pull_request() {
                 RETVAL=0
                 if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL}); then
                     RETVAL=$?
+                    printf "Return value of ${RETVAL} for ${REVIEWERS_URL}"
+                    printf "${DATA}"
+                else
+                    echo "::group::github reviewers response"
+                    echo "${RESPONSE}"
+                    echo "::endgroup::github reviewers response"
                 fi
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
@@ -271,8 +277,10 @@ main () {
 # Run curl with default values
 curl_wrapper() {
     printf "curl -fsSL -H 'AUTH...' %s\n" "$*"
-    curl -fsSL -H "${AUTH_HEADER}" --user "${GITHUB_ACTOR}" -H "${HEADER}" "$@"
+    set +e
+    curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
     ret=$?
+    set -e
     return $ret
 }
 
