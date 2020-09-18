@@ -46,6 +46,9 @@ check_events_json() {
 
 create_pull_request() {
 
+    # Print entire input to function
+    printf "$*"
+    
     # JSON strings
     SOURCE="$(echo -n "${1}" | jq --raw-input --slurp ".")"  # from this branch
     TARGET="$(echo -n "${2}" | jq --raw-input --slurp ".")"  # pull request TO this target
