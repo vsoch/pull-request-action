@@ -68,6 +68,10 @@ create_pull_request() {
         RETVAL=$?
         abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}"
     fi
+    echo "::group::github pr response"
+    echo "${RESPONSE}"
+    echo "::endgroup::github pr response"
+
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
 
@@ -279,11 +283,9 @@ main () {
 
 # Run curl with default values
 curl_wrapper() {
-    printf "curl -fsSL -H 'AUTH...' %s\n" "$*"
-    set +e
+    printf "curl -fsSL -H $@\n"
     curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
     ret=$?
-    set -e
     return $ret
 }
 
