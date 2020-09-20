@@ -283,7 +283,7 @@ main () {
 
 # Run curl with default values
 curl_wrapper() {
-    printf "curl -fsSL -H $@\n"
+    printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
     curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
     ret=$?
     return $ret
