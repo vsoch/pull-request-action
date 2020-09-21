@@ -46,9 +46,6 @@ check_events_json() {
 
 create_pull_request() {
 
-    # Print entire input to function
-    printf "$*"
-    
     # JSON strings
     SOURCE="$(echo -n "${1}" | jq --raw-input --slurp ".")"  # from this branch
     TARGET="$(echo -n "${2}" | jq --raw-input --slurp ".")"  # pull request TO this target
@@ -66,7 +63,7 @@ create_pull_request() {
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
     if ! RESPONSE=$(curl_wrapper -X GET --data "${DATA}" ${PULLS_URL}); then
         RETVAL=$?
-        abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}"
+        abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}\n"
     fi
     echo "::group::github pr response"
     echo "${RESPONSE}"
@@ -110,7 +107,7 @@ create_pull_request() {
 
                 # Parse assignees into a list            
                 ASSIGNEES=$(echo $ASSIGNEES | printf '"%s"\n' $ASSIGNEES|paste -sd, -)
-                printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+                printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}\n"
 
                 # POST /repos/:owner/:repo/issues/:issue_number/assignees
                 DATA="{\"assignees\":[${ASSIGNEES}]}"
@@ -148,8 +145,7 @@ create_pull_request() {
                 RETVAL=0
                 if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL}); then
                     RETVAL=$?
-                    printf "Return value of ${RETVAL} for ${REVIEWERS_URL}"
-                    printf "${DATA}"
+                    printf "Return value of ${RETVAL} for ${REVIEWERS_URL}\n"
                 else
                     echo "::group::github reviewers response"
                     echo "${RESPONSE}"
@@ -160,7 +156,7 @@ create_pull_request() {
                 printf "Add reviewers return code: ${RETVAL}\n"
 
                 if [[ "${RETVAL}" != 0 ]]; then
-                    abort_if_fail "Error ${RETVAL} setting reviewers: ${RESPONSE}"
+                    abort_if_fail "Error ${RETVAL} setting reviewers: ${RESPONSE}\n"
                 fi
             fi
         fi
