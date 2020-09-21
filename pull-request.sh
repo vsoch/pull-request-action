@@ -63,8 +63,12 @@ create_pull_request() {
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
     if ! RESPONSE=$(curl_wrapper -X GET --data "${DATA}" ${PULLS_URL}); then
         RETVAL=$?
-        abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}"
+        abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}\n"
     fi
+    echo "::group::github pr response"
+    echo "${RESPONSE}"
+    echo "::endgroup::github pr response"
+
     PR=$(echo "${RESPONSE}" | jq --raw-output '.[] | .head.ref')
     printf "Response ref: ${PR}\n"
 
@@ -103,7 +107,7 @@ create_pull_request() {
 
                 # Parse assignees into a list            
                 ASSIGNEES=$(echo $ASSIGNEES | printf '"%s"\n' $ASSIGNEES|paste -sd, -)
-                printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}"
+                printf "Attempting to assign ${ASSIGNEES} to ${PR} with number ${NUMBER}\n"
 
                 # POST /repos/:owner/:repo/issues/:issue_number/assignees
                 DATA="{\"assignees\":[${ASSIGNEES}]}"
@@ -141,13 +145,18 @@ create_pull_request() {
                 RETVAL=0
                 if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL}); then
                     RETVAL=$?
+                    printf "Return value of ${RETVAL} for ${REVIEWERS_URL}\n"
+                else
+                    echo "::group::github reviewers response"
+                    echo "${RESPONSE}"
+                    echo "::endgroup::github reviewers response"
                 fi
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
                 printf "Add reviewers return code: ${RETVAL}\n"
 
                 if [[ "${RETVAL}" != 0 ]]; then
-                    abort_if_fail "Error ${RETVAL} setting reviewers: ${RESPONSE}"
+                    abort_if_fail "Error ${RETVAL} setting reviewers: ${RESPONSE}\n"
                 fi
             fi
         fi
@@ -271,10 +280,8 @@ main () {
 # Run curl with default values
 curl_wrapper() {
     printf "curl -fsSL -H 'AUTH...' %s\n" "$*" >&2
-    set +e
     curl -fsSL -H "${AUTH_HEADER}" -H "${HEADER}" "$@"
     ret=$?
-    set -e
     return $ret
 }
 
