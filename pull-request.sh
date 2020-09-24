@@ -142,15 +142,12 @@ create_pull_request() {
                 # POST /repos/:owner/:repo/pulls/:pull_number/requested_reviewers
                 REVIEWERS_URL="${PULLS_URL}/${NUMBER}/requested_reviewers"
                 DATA="{\"reviewers\":[${REVIEWERS}], \"team_reviewers\":[${TEAM_REVIEWERS}]}"
-                RETVAL=0
-                if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL}); then
-                    RETVAL=$?
-                    printf "Return value of ${RETVAL} for ${REVIEWERS_URL}\n"
-                else
-                    echo "::group::github reviewers response"
-                    echo "${RESPONSE}"
-                    echo "::endgroup::github reviewers response"
-                fi
+                RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${REVIEWERS_URL})
+                RETVAL=$?
+                printf "Return value of ${RETVAL} for ${REVIEWERS_URL}\n"
+                echo "::group::github reviewers response"
+                echo "${RESPONSE}"
+                echo "::endgroup::github reviewers response"
                 echo ::set-env name=REVIEWERS_RETURN_CODE::${RETVAL}
                 echo ::set-output name=reviewers_return_code::${RETVAL}
                 printf "Add reviewers return code: ${RETVAL}\n"
