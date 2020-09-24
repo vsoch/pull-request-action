@@ -33,7 +33,8 @@ def abort_if_fail(reason):
 
 
 def parse_into_list(values):
-    values = values.replace('"', "").replace("'", "")
+    if values:
+        values = values.replace('"', "").replace("'", "")
     if not values:
         return []
     return ['"%s"' % x.strip() for x in values.split(" ")]
