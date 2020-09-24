@@ -288,7 +288,7 @@ def main():
     else:
 
         # If the prefix for the branch matches
-        if not branch_prefix or branch.starstwith(branch_prefix):
+        if not branch_prefix or branch.startswith(branch_prefix):
 
             # Pull request body (optional)
             pull_request_body = os.environ.get(
@@ -305,8 +305,8 @@ def main():
 
             # Create the pull request
             create_pull_request(
-                target=branch,
-                source=pull_request_branch,
+                target=pull_request_branch,
+                source=branch,
                 body=pull_request_body,
                 title=pull_request_title,
                 is_draft=pull_request_draft,
