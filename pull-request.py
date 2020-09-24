@@ -59,15 +59,15 @@ PULLS_URL = "%s/pulls" % REPO_URL
 
 
 def create_pull_request(
-    source=branch,
-    target=pull_request_branch,
-    body=pull_request_body,
-    title=pull_request_title,
-    is_draft=pull_request_draft,
-    can_modify=maintainer_can_modify,
-    assignees=assignees,
-    reviewers=reviewers,
-    team_reviewers=team_reviewers,
+    source,
+    target,
+    body,
+    title,
+    assignees,
+    reviewers,
+    team_reviewers,
+    is_draft=False,
+    can_modify=True,
 ):
 
     # Check if the branch already has a pull request open
@@ -305,8 +305,8 @@ def main():
 
             # Create the pull request
             create_pull_request(
-                branch=branch,
-                pull_request_branch=pull_request_branch,
+                target=branch,
+                source=pull_request_branch,
                 body=pull_request_body,
                 title=pull_request_title,
                 is_draft=pull_request_draft,
