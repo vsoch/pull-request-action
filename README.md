@@ -53,6 +53,7 @@ treated as environment booleans. If they are defined in the environment, they tr
 
  - Define `MAINTAINER_CANT_MODIFY` if you don't want the maintainer to be able to modify the pull request.
  - Define `PULL_REQUEST_DRAFT` if you want the PR to be a draft.
+ - Define `FAIL_ON_ERROR` if you want the PR to exit given any non 200/201 response.
 
 For `PULL_REQUEST_ASSIGNEES`, `PULL_REQUEST_REVIEWERS`, and `PULL_REQUEST_TEAM_REVIEWERS` 
 you can provide a string of one or more GitHub usernames (or team names) to
