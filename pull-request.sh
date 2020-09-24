@@ -61,6 +61,7 @@ create_pull_request() {
 
     # Check if the branch already has a pull request open
     DATA="{\"base\":${TARGET}, \"head\":${SOURCE}, \"body\":${BODY}}"
+    echo "Data for getting pr ${DATA}"
     if ! RESPONSE=$(curl_wrapper -X GET --data "${DATA}" ${PULLS_URL}); then
         RETVAL=$?
         abort_if_fail "Error ${RETVAL} getting open PRs: ${RESPONSE}\n"
@@ -80,6 +81,7 @@ create_pull_request() {
     else
         # Post the pull request
         DATA="{\"title\":${TITLE}, \"body\":${BODY}, \"base\":${TARGET}, \"head\":${SOURCE}, \"draft\":${DRAFT}, \"maintainer_can_modify\":${MODIFY}}"
+        echo "Data for posting the pr ${DATA}"
         if ! RESPONSE=$(curl_wrapper -X POST --data "${DATA}" ${PULLS_URL}); then
             RETVAL=$?
             abort_if_fail "Error ${RETVAL} creating PR: ${RESPONSE}"
