@@ -73,6 +73,7 @@ def create_pull_request(
 
     # Check if the branch already has a pull request open
     data = {"base": target, "head": source, "body": body}
+    print("Data for checking if pull request exists: %s" % data)
     response = requests.get(PULLS_URL, json=data)
     if response.status_code != 200:
         abort_if_fail(
@@ -102,6 +103,7 @@ def create_pull_request(
             "draft": is_draft,
             "maintainer_can_modify": can_modify,
         }
+        print("Data for opening pull request: %s" % data)
         response = requests.post(PULLS_URL, json=data, headers=HEADERS)
         if response.status_code != 201:
             abort_if_fail(
