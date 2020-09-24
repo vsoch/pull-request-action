@@ -11,4 +11,4 @@ RUN apk --no-cache add python3 git bash
 COPY pull-request.py /pull-request.py
 
 RUN chmod u+x /pull-request.py
-ENTRYPOINT ["python3", "/pull_request.py"]
+ENTRYPOINT ["python3", "/pull-request.py"]
