@@ -26,10 +26,11 @@ def check_events_json():
 
 
 def abort_if_fail(reason):
-    """If FAIL_ON_ERROR, exit with an error and print some rationale"""
-    if os.environ.get("FAIL_ON_ERROR"):
+    """If PASS_ON_ERROR, don't exit. Otherwise exit with an error and print the reason"""
+    if os.environ.get("PASS_ON_ERROR"):
+        print("Error, but PASS_ON_ERROR is not set, continuing: %s" % reason)
+    else:
         sys.exit(reason)
-    print("Error, but FAIL_ON_ERROR is not set, continuing: %s" % reason)
 
 
 def parse_into_list(values):
@@ -82,13 +83,16 @@ def create_pull_request(
         )
 
     response = response.json()
-    print("::group::github pr response")
-    print(response)
-    print("::endgroup::github pr response")
 
     # Option 1: The pull request is already open
     if response:
+
+        print("::group::github pr response")
+        print(response[0])
+        print("::endgroup::github pr response")
+
         pull_request = response[0].get("head", {}).get("ref", "")
+        print(pull_request)
         if pull_request == source:
             print("Pull request from %s to %s is already open!" % (source, target))
 
@@ -267,18 +271,18 @@ def main():
         print("PULL_REQUEST_TEAM_REVIEWERS is set, %s" % team_reviewers)
 
     # The user is allowed to explicitly set the name of the branch
-    branch = os.environ.get("PULL_REQUEST_FROM_BRANCH")
-    if not branch:
+    from_branch = os.environ.get("PULL_REQUEST_FROM_BRANCH")
+    if not from_branch:
         print("PULL_REQUEST_FROM_BRANCH is not set, checking branch in payload.")
         with open(check_events_json(), "r") as fd:
-            branch = json.loads(fd.read()).get("ref")
-        branch = branch.replace("refs/heads/", "")
+            from_branch = json.loads(fd.read()).get("ref")
+        from_branch = branch.replace("refs/heads/", "").strip("/")
     else:
         print("PULL_REQUEST_FROM_BRANCH is set.")
 
     # At this point, we must have a branch
-    if branch:
-        print("Found branch %s to open PR from" % branch)
+    if from_branch:
+        print("Found branch %s to open PR from" % from_branch)
     else:
         sys.exit(
             "No branch in payload, you are required to define PULL_REQUEST_FROM_BRANCH in the environment."
@@ -286,30 +290,31 @@ def main():
 
     # If it's to the target branch, ignore it
 
-    if branch == pull_request_branch:
-        print("Target and current branch are identical (%s), skipping." % branch)
+    if from_branch == pull_request_branch:
+        print("Target and current branch are identical (%s), skipping." % from_branch)
     else:
 
         # If the prefix for the branch matches
-        if not branch_prefix or branch.startswith(branch_prefix):
+        if not branch_prefix or from_branch.startswith(branch_prefix):
 
             # Pull request body (optional)
             pull_request_body = os.environ.get(
                 "PULL_REQUEST_BODY",
-                "This is an automated pull request to update from branch %s" % branch,
+                "This is an automated pull request to update from branch %s"
+                % from_branch,
             )
             print("Pull request body is %s" % pull_request_body)
 
             # Pull request title (optional)
             pull_request_title = os.environ.get(
-                "PULL_REQUEST_TITLE", "Update from %s" % branch
+                "PULL_REQUEST_TITLE", "Update from %s" % from_branch
             )
             print("Pull request title is %s" % pull_request_title)
 
             # Create the pull request
             create_pull_request(
                 target=pull_request_branch,
-                source=branch,
+                source=from_branch,
                 body=pull_request_body,
                 title=pull_request_title,
                 is_draft=pull_request_draft,
