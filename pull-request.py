@@ -86,15 +86,10 @@ def create_pull_request(
 
     # Option 1: The pull request is already open
     if response:
-
-        print("::group::github pr response")
-        print(response[0])
-        print("::endgroup::github pr response")
-
-        pull_request = response[0].get("head", {}).get("ref", "")
-        print(pull_request)
-        if pull_request == source:
-            print("Pull request from %s to %s is already open!" % (source, target))
+        for entry in response:
+            if entry.get("head", {}).get("ref", "") == source:
+                print("Pull request from %s to %s is already open!" % (source, target))
+                sys.exit(0)
 
     # Option 2: Open a new pull request
     else:
