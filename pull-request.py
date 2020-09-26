@@ -90,6 +90,7 @@ def create_pull_request(
         for entry in response:
             if entry.get("head", {}).get("ref", "") == source:
                 print("Pull request from %s to %s is already open!" % (source, target))
+                is_open = True
 
     # Option 2: Open a new pull request
     if not is_open:
