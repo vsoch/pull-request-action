@@ -90,6 +90,7 @@ def create_pull_request(
             if entry.get("head", {}).get("ref", "") == source:
                 print("Pull request from %s to %s is already open!" % (source, target))
                 sys.exit(0)
+        print("%s does not have a pull request open, continuing!" % source)
 
     # Option 2: Open a new pull request
     else:
@@ -298,13 +299,18 @@ def main():
                 "This is an automated pull request to update from branch %s"
                 % from_branch,
             )
-            print("Pull request body is %s" % pull_request_body)
+
+            print("::group::pull request body")
+            print(pull_request_body)
+            print("::endgroup::pull request body")
 
             # Pull request title (optional)
             pull_request_title = os.environ.get(
                 "PULL_REQUEST_TITLE", "Update from %s" % from_branch
             )
-            print("Pull request title is %s" % pull_request_title)
+            print("::group::pull request title")
+            print(pull_request_title)
+            print("::endgroup::pull request title")
 
             # Create the pull request
             create_pull_request(
