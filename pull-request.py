@@ -85,15 +85,16 @@ def create_pull_request(
     response = response.json()
 
     # Option 1: The pull request is already open
+    is_open = False
     if response:
         for entry in response:
             if entry.get("head", {}).get("ref", "") == source:
                 print("Pull request from %s to %s is already open!" % (source, target))
-                sys.exit(0)
-        print("%s does not have a pull request open, continuing!" % source)
 
     # Option 2: Open a new pull request
-    else:
+    if not is_open:
+        print("%s does not have a pull request open, continuing!" % source)
+
         # Post the pull request
         data = {
             "title": title,
