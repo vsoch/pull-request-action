@@ -28,7 +28,7 @@ def check_events_json():
 def abort_if_fail(reason):
     """If PASS_ON_ERROR, don't exit. Otherwise exit with an error and print the reason"""
     if os.environ.get("PASS_ON_ERROR"):
-        print("Error, but PASS_ON_ERROR is not set, continuing: %s" % reason)
+        print("Error, but PASS_ON_ERROR is set, continuing: %s" % reason)
     else:
         sys.exit(reason)
 
