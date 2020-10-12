@@ -40,7 +40,7 @@ jobs:
            git push origin "${BRANCH_FROM}"
         fi
         # Here is where we are setting the environment variable!
-        echo "::set-env name=PULL_REQUEST_FROM_BRANCH::${BRANCH_FROM}"
+        echo "PULL_REQUEST_FROM_BRANCH=${BRANCH_FROM}" >> $GITHUB_ENV
 
     - name: Open Pull Request
       uses: vsoch/pull-request-action@1.0.6
