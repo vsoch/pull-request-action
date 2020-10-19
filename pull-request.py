@@ -76,11 +76,17 @@ def create_pull_request(
     data = {"base": target, "head": source, "body": body}
     print("Data for checking if pull request exists: %s" % data)
     response = requests.get(PULLS_URL, json=data)
-    
+
     # Case 1: 404 might warrant needing a token
     if response.status_code == 404:
         response = requests.get(PULLS_URL, json=data, headers=HEADERS)
     if response.status_code != 200:
+
+        # Does the user want to pass if the pull request exists?
+        if os.environ.get("PASS_IF_EXISTS"):
+            print("PASS_IF_EXISTS is set, exiting with success status.")
+            sys.exit(0)
+
         abort_if_fail(
             "Unable to retrieve information about pull requests: %s: %s"
             % (response.status_code, response.reason)
