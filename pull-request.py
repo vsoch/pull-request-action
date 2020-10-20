@@ -73,20 +73,15 @@ def create_pull_request(
 ):
 
     # Check if the branch already has a pull request open
+    params = {"base": target, "head": source, "state": "open"}
     data = {"base": target, "head": source, "body": body}
     print("Data for checking if pull request exists: %s" % data)
-    response = requests.get(PULLS_URL, json=data)
+    response = requests.get(PULLS_URL, params=params)
 
     # Case 1: 404 might warrant needing a token
     if response.status_code == 404:
-        response = requests.get(PULLS_URL, json=data, headers=HEADERS)
+        response = requests.get(PULLS_URL, params=params, headers=HEADERS)
     if response.status_code != 200:
-
-        # Does the user want to pass if the pull request exists?
-        if os.environ.get("PASS_IF_EXISTS"):
-            print("PASS_IF_EXISTS is set, exiting with success status.")
-            sys.exit(0)
-
         abort_if_fail(
             "Unable to retrieve information about pull requests: %s: %s"
             % (response.status_code, response.reason)
@@ -102,9 +97,14 @@ def create_pull_request(
                 print("Pull request from %s to %s is already open!" % (source, target))
                 is_open = True
 
+                # Does the user want to pass if the pull request exists?
+                if os.environ.get("PASS_IF_EXISTS"):
+                    print("PASS_IF_EXISTS is set, exiting with success status.")
+                    sys.exit(0)
+
     # Option 2: Open a new pull request
     if not is_open:
-        print("%s does not have a pull request open, continuing!" % source)
+        print("No pull request from %s to %s is open, continuing!" % (source, target))
 
         # Post the pull request
         data = {
