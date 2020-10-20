@@ -101,6 +101,7 @@ def create_pull_request(
                 if os.environ.get("PASS_IF_EXISTS"):
                     print("PASS_IF_EXISTS is set, exiting with success status.")
                     sys.exit(0)
+                break
 
     # Option 2: Open a new pull request
     if not is_open:
