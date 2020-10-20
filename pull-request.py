@@ -75,7 +75,7 @@ def create_pull_request(
     # Check if the branch already has a pull request open
     params = {"base": target, "head": source, "state": "open"}
     data = {"base": target, "head": source, "body": body}
-    print("Data for checking if pull request exists: %s" % data)
+    print("Params for checking if pull request exists: %s" % params)
     response = requests.get(PULLS_URL, params=params)
 
     # Case 1: 404 might warrant needing a token
