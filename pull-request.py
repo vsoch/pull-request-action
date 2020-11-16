@@ -43,7 +43,10 @@ def parse_into_list(values):
 
 def set_env(name, value):
     """helper function to echo a key/value pair to the environement file"""
-    os.system('echo "%s=%s" >> $GITHUB_ENV' % (name, value))
+    environment_file_path = os.environ.get("GITHUB_ENV")
+
+    with open(environment_file_path, "a") as environment_file:
+        environment_file.write("%s=%s" % (name, value))
 
 
 ################################################################################
