@@ -41,6 +41,14 @@ def parse_into_list(values):
     return [x.strip() for x in values.split(" ")]
 
 
+def set_env(name, value):
+    """helper function to echo a key/value pair to the environement file"""
+    environment_file_path = os.environ.get("GITHUB_ENV")
+
+    with open(environment_file_path, "a") as environment_file:
+        environment_file.write("%s=%s" % (name, value))
+
+
 ################################################################################
 # Global Variables (we can't use GITHUB_ prefix)
 ################################################################################
@@ -139,13 +147,13 @@ def create_pull_request(
         number = response.get("number")
         html_url = response.get("html_url")
         print("Number opened for PR is %s" % number)
-        print("::set-env name=PULL_REQUEST_NUMBER::%s" % number)
+        set_env("PULL_REQUEST_NUMBER", number)
         print("::set-output name=pull_request_number::%s" % number)
-        print("::set-env name=PULL_REQUEST_RETURN_CODE::%s" % pull_request_return_code)
+        set_env("PULL_REQUEST_RETURN_CODE", pull_request_return_code)
         print(
             "::set-output name=pull_request_return_code::%s" % pull_request_return_code
         )
-        print("::set-env name=PULL_REQUEST_URL::%s" % html_url)
+        set_env("PULL_REQUEST_URL", html_url)
         print("::set-output name=pull_request_url::%s" % html_url)
 
         if assignees:
@@ -175,7 +183,7 @@ def create_pull_request(
             assignees_return_code = (
                 0 if response.status_code == 201 else response.status_code
             )
-            print("::set-env name=ASSIGNEES_RETURN_CODE::%s" % assignees_return_code)
+            set_env("ASSIGNEES_RETURN_CODE", assignees_return_code)
             print("::set-output name=assignees_return_code::%s" % assignees_return_code)
 
         if reviewers or team_reviewers:
@@ -213,7 +221,7 @@ def create_pull_request(
             print("::group::github reviewers response")
             print(response)
             print("::endgroup::github reviewers response")
-            print("::set-env name=REVIEWERS_RETURN_CODE::%s" % reviewers_return_code)
+            set_env("REVIEWERS_RETURN_CODE", reviewers_return_code)
             print("::set-output name=reviewers_return_code::%s" % reviewers_return_code)
             print("Add reviewers return code: %s" % reviewers_return_code)
 
