@@ -25,12 +25,19 @@ def check_events_json():
     return events
 
 
-def abort_if_fail(reason):
+def abort_if_fail(response, reason):
     """If PASS_ON_ERROR, don't exit. Otherwise exit with an error and print the reason"""
+    message = "%s: %s: %s\n %s" % (
+        reason,
+        response.status_code,
+        response.reason,
+        response.json(),
+    )
+
     if os.environ.get("PASS_ON_ERROR"):
-        print("Error, but PASS_ON_ERROR is set, continuing: %s" % reason)
+        print("Error, but PASS_ON_ERROR is set, continuing: %s" % message)
     else:
-        sys.exit(reason)
+        sys.exit(message)
 
 
 def parse_into_list(values):
@@ -90,10 +97,7 @@ def create_pull_request(
     if response.status_code == 404:
         response = requests.get(PULLS_URL, params=params, headers=HEADERS)
     if response.status_code != 200:
-        abort_if_fail(
-            "Unable to retrieve information about pull requests: %s: %s"
-            % (response.status_code, response.reason)
-        )
+        abort_if_fail(response, "Unable to retrieve information about pull requests")
 
     response = response.json()
 
@@ -127,14 +131,7 @@ def create_pull_request(
         print("Data for opening pull request: %s" % data)
         response = requests.post(PULLS_URL, json=data, headers=HEADERS)
         if response.status_code != 201:
-            abort_if_fail(
-                "Unable to create pull request: %s: %s, %s"
-                % (
-                    response.status_code,
-                    response.reason,
-                    response.json().get("message", ""),
-                )
-            )
+            abort_if_fail(response, "Unable to create pull request")
 
         # Expected return codes are 0 for success
         pull_request_return_code = (
@@ -171,14 +168,7 @@ def create_pull_request(
             ASSIGNEES_URL = "%s/%s/assignees" % (ISSUE_URL, number)
             response = requests.post(ASSIGNEES_URL, json=data, headers=HEADERS)
             if response.status_code != 201:
-                abort_if_fail(
-                    "Unable to create assignees: %s: %s, %s"
-                    % (
-                        response.status_code,
-                        response.reason,
-                        response.json().get("message", ""),
-                    )
-                )
+                abort_if_fail(response, "Unable to create assignees")
 
             assignees_return_code = (
                 0 if response.status_code == 201 else response.status_code
@@ -205,14 +195,7 @@ def create_pull_request(
             data = {"reviewers": reviewers, "team_reviewers": team_reviewers}
             response = requests.post(REVIEWERS_URL, json=data, headers=HEADERS)
             if response.status_code != 201:
-                abort_if_fail(
-                    "Unable to assign reviewers: %s: %s, %s"
-                    % (
-                        response.status_code,
-                        response.reason,
-                        response.json().get("message", ""),
-                    )
-                )
+                abort_if_fail(response, "Unable to assign reviewers")
 
             reviewers_return_code = (
                 0 if response.status_code == 201 else response.status_code
