@@ -135,7 +135,7 @@ def update_pull_request(entry, title, body, target, state=None):
     url = "%s/%s" % (PULLS_URL, entry.get("number"))
     print("Data for updating pull request: %s" % data)
     response = requests.patch(url, json=data, headers=HEADERS)
-    if response.status_code != 201:
+    if response.status_code != 200:
         abort_if_fail(response, "Unable to create pull request")
 
     return response
