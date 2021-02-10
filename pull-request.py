@@ -113,7 +113,7 @@ def open_pull_request(title, body, target, source, is_draft=False, can_modify=Tr
     return response
 
 
-def update_pull_request(entry, title, body, target, can_modify=True, state=None):
+def update_pull_request(entry, title, body, target, state=None):
     """Given an existing pull request, update it.
 
     Parameters:
@@ -122,7 +122,6 @@ def update_pull_request(entry, title, body, target, can_modify=True, state=None)
     body        (str) : the body to set for the new pull request
     target      (str) : the target branch
     state      (bool) : the state of the PR (open, closed)
-    can_modify (bool) : indicate the maintainer can modify
     """
     print("PULL_REQUEST_UPDATE is set, updating existing pull request.")
 
@@ -131,7 +130,6 @@ def update_pull_request(entry, title, body, target, can_modify=True, state=None)
         "body": body,
         "base": target,
         "state": state or "open",
-        "maintainer_can_modify": can_modify,
     }
     # PATCH /repos/{owner}/{repo}/pulls/{pull_number}
     url = "%s/%s" % (PULLS_URL, entry.get("number"))
@@ -309,7 +307,7 @@ def create_pull_request(
 
     # Does the user want to update the existing PR?
     if entry and os.environ.get("PULL_REQUEST_UPDATE"):
-        response = update_pull_request(entry, title, body, target, can_modify, state)
+        response = update_pull_request(entry, title, body, target, state)
         set_pull_request_groups(response)
 
     # If it's not open, we open a new pull request
