@@ -47,6 +47,8 @@ Unlike standard actions, this action just uses variables from the environment.
 | PULL_REQUEST_TEAM_REVIEWERS | A list (string with spaces) of teams to assign review | false | unset |
 | PASS_ON_ERROR | Instead of failing on an error response, pass | unset |
 | PASS_IF_EXISTS | Instead of failing if the pull request already exists, pass | unset |
+| PULL_REQUEST_UPDATE | If the pull request already exists, update it | unset |
+| PULL_REQUEST_STATE | If `PULL_REQUEST_UPDATE` is true, update to this state (open, closed) | open |
 
 For `PULL_REQUEST_DRAFT`, `PASS_ON_ERROR`, `PASS_IF_EXISTS`, and `MAINTAINER_CANT_MODIFY`, these are
 treated as environment booleans. If they are defined in the environment, they trigger the
@@ -56,6 +58,7 @@ treated as environment booleans. If they are defined in the environment, they tr
  - Define `PULL_REQUEST_DRAFT` if you want the PR to be a draft.
  - Define `PASS_ON_ERROR` if you want the PR to not exit given any non 200/201 response.
  - Define `PASS_IF_EXISTS` if you want the PR to not exit given the pull request is already open.
+ - Define `PULL_REQUEST_UPDATE` if you want the pull request to be updated if it already exits.
 
 For `PULL_REQUEST_ASSIGNEES`, `PULL_REQUEST_REVIEWERS`, and `PULL_REQUEST_TEAM_REVIEWERS` 
 you can provide a string of one or more GitHub usernames (or team names) to
