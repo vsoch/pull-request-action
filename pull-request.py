@@ -188,11 +188,12 @@ def list_pull_requests(target, source):
     return response.json()
 
 
-def add_assignees(entry):
+def add_assignees(entry, assignees):
     """Given a pull request metadata (from create or update) add assignees
 
     Parameters:
-    entry (dict) : the pull request metadata
+    entry (dict)    : the pull request metadata
+    assignees (str) : comma separated assignees string set by action
     """
     # Remove leading and trailing quotes
     assignees = parse_into_list(assignees)
@@ -320,7 +321,7 @@ def create_pull_request(
 
     # If we have opened or updated, we can add assignees
     if response and assignees:
-        add_assignees(response)
+        add_assignees(response, assignees)
     if response and (reviewers or team_reviewers):
         add_reviewers(response, reviewers, team_reviewers)
 
