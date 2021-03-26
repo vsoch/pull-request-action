@@ -43,7 +43,7 @@ jobs:
         echo "PULL_REQUEST_FROM_BRANCH=${BRANCH_FROM}" >> $GITHUB_ENV
 
     - name: Open Pull Request
-      uses: vsoch/pull-request-action@1.0.6
+      uses: vsoch/pull-request-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PULL_REQUEST_BRANCH: "master"
