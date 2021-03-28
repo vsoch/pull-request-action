@@ -29,7 +29,7 @@ jobs:
           PULL_REQUEST_BRANCH: "master"
 ```
 
-Make sure to use a [release](https://github.com/vsoch/pull-request-action/releases) instead of a branch for your workflow.
+**Important**: Make sure to use a stable [release](https://github.com/vsoch/pull-request-action/releases) instead of a branch for your workflow.
 
 
 ## Environment Variable Inputs
