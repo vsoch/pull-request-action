@@ -271,16 +271,17 @@ def add_reviewers(entry, reviewers, team_reviewers):
 API_VERSION = "v3"
 BASE = "https://api.github.com"
 
+pr_token = os.environ["PULL_REQUEST_TOKEN"] if "PULL_REQUEST_TOKEN" in os.environ else get_envar("GITHUB_TOKEN")
+pr_repo = os.environ["PULL_REQUEST_REPOSITORY"] if "PULL_REQUEST_REPOSITORY" in os.environ else get_envar("GITHUB_REPOSITORY")
+
 HEADERS = {
-    "Authorization": "token %s" % get_envar("GITHUB_TOKEN"),
+    "Authorization": "token %s" % token,
     "Accept": "application/vnd.github.%s+json;application/vnd.github.antiope-preview+json;application/vnd.github.shadow-cat-preview+json"
     % API_VERSION,
 }
 
-print(HEADERS)
-print(get_envar("GITHUB_REPOSITORY"))
 # URLs
-REPO_URL = "%s/repos/%s" % (BASE, get_envar("GITHUB_REPOSITORY"))
+REPO_URL = "%s/repos/%s" % (BASE, repo)
 ISSUE_URL = "%s/issues" % REPO_URL
 PULLS_URL = "%s/pulls" % REPO_URL
 
