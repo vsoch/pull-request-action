@@ -107,10 +107,8 @@ def open_pull_request(title, body, target, source, is_draft=False, can_modify=Tr
     }
     print("Data for opening pull request: %s" % data)
     response = requests.post(PULLS_URL, json=data, headers=HEADERS)
-    print(PULLS_URL)
-    print(data)
-    print(HEADERS)
     if response.status_code != 201:
+        print(f"pull request url is {PULLS_URL}")
         abort_if_fail(response, "Unable to create pull request")
 
     return response
