@@ -275,13 +275,13 @@ pr_token = os.environ["PULL_REQUEST_TOKEN"] if "PULL_REQUEST_TOKEN" in os.enviro
 pr_repo = os.environ["PULL_REQUEST_REPOSITORY"] if "PULL_REQUEST_REPOSITORY" in os.environ else get_envar("GITHUB_REPOSITORY")
 
 HEADERS = {
-    "Authorization": "token %s" % token,
+    "Authorization": "token %s" % pr_token,
     "Accept": "application/vnd.github.%s+json;application/vnd.github.antiope-preview+json;application/vnd.github.shadow-cat-preview+json"
     % API_VERSION,
 }
 
 # URLs
-REPO_URL = "%s/repos/%s" % (BASE, repo)
+REPO_URL = "%s/repos/%s" % (BASE, pr_repo)
 ISSUE_URL = "%s/issues" % REPO_URL
 PULLS_URL = "%s/pulls" % REPO_URL
 
