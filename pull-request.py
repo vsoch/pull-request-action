@@ -395,7 +395,10 @@ def main():
         print("PULL_REQUEST_FROM_BRANCH is not set, checking branch in payload.")
         with open(check_events_json(), "r") as fd:
             from_branch = json.loads(fd.read()).get("ref")
-        from_branch = from_branch.replace("refs/heads/", "").strip("/")
+        try:
+            from_branch = from_branch.replace("refs/heads/", "").strip("/")
+        except AttributeError:
+            print("Unable to determine branch from payload.")
     else:
         print("PULL_REQUEST_FROM_BRANCH is set.")
 
