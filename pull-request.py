@@ -274,6 +274,8 @@ HEADERS = {
     % API_VERSION,
 }
 
+print(HEADERS)
+
 # URLs
 REPO_URL = "%s/repos/%s" % (BASE, get_envar("GITHUB_REPOSITORY"))
 ISSUE_URL = "%s/issues" % REPO_URL
