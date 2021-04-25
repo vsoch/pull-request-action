@@ -39,6 +39,8 @@ Unlike standard actions, this action just uses variables from the environment.
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
 | BRANCH_PREFIX | the prefix to filter to. If the branch doesn't start with the prefix, it will be ignored | false | "" |
+| PULL_REQUEST_REPOSITORY | Choose another repository instead of default GITHUB_REPOSITORY for the PR  | false | |
+| PULL_REQUEST_TOKEN | [Personal Access Token(PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for PULL_REQUEST_REPOSITORY | false | |
 | PULL_REQUEST_BRANCH | open pull request against this branch | false | master |
 | PULL_REQUEST_FROM_BRANCH | if a branch isn't found in your GitHub payload, use this branch | false | |
 | PULL_REQUEST_BODY | the body for the pull request | false | |
@@ -70,6 +72,8 @@ an issue or PR, they are ignored otherwise.
 
 The `GITHUB_TOKEN` secret is required to interact and authenticate with the GitHub API to open
 the pull request. The example is [deployed here](https://github.com/vsoch/pull-request-action-example) with an example opened (and merged) [pull request here](https://github.com/vsoch/pull-request-action-example/pull/1) if needed.
+
+If you want to create a pull request to another repository, for example, a pull request to the upstream repository, you need to define PULL_REQUEST_REPOSITORY and PULL_REQUEST_TOKEN. The PULL_REQUEST_TOKEN is one [Personal Access Token(PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token), which can be save in the [encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository)
 
 ## Outputs
 
