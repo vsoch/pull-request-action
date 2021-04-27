@@ -40,7 +40,7 @@ Unlike standard actions, this action just uses variables from the environment.
 |------|-------------|----------|---------|
 | BRANCH_PREFIX | the prefix to filter to. If the branch doesn't start with the prefix, it will be ignored | false | "" |
 | PULL_REQUEST_REPOSITORY | Choose another repository instead of default GITHUB_REPOSITORY for the PR  | false | |
-| PULL_REQUEST_TOKEN | [Personal Access Token(PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) for PULL_REQUEST_REPOSITORY | false | |
+| PULL_REQUEST_TOKEN | [Personal Access Token(PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) only if you define a different repository with PULL_REQUEST_REPOSITORY | false | |
 | PULL_REQUEST_BRANCH | open pull request against this branch | false | master |
 | PULL_REQUEST_FROM_BRANCH | if a branch isn't found in your GitHub payload, use this branch | false | |
 | PULL_REQUEST_BODY | the body for the pull request | false | |
