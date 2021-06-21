@@ -108,6 +108,7 @@ def open_pull_request(title, body, target, source, is_draft=False, can_modify=Tr
     print("Data for opening pull request: %s" % data)
     response = requests.post(PULLS_URL, json=data, headers=HEADERS)
     if response.status_code != 201:
+        print(f"pull request url is {PULLS_URL}")
         abort_if_fail(response, "Unable to create pull request")
 
     return response
@@ -233,6 +234,22 @@ def find_pull_request(listing, source):
                 return entry
 
 
+def find_default_branch():
+    """Find default branch for a repo (only called if branch not provided)
+    """
+    response = requests.get(REPO_URL)
+
+    # Case 1: 404 might need a token
+    if response.status_code == 404:
+        response = requests.get(REPO_URL, headers=HEADERS)
+    if response.status_code != 200:
+        abort_if_fail(response, "Unable to retrieve default branch")
+
+    default_branch = response.json()["default_branch"]
+    print("Found default branch: %s" % default_branch)
+    return default_branch
+
+
 def add_reviewers(entry, reviewers, team_reviewers):
     """Given regular or team reviewers, add them to a PR.
 
@@ -268,14 +285,17 @@ def add_reviewers(entry, reviewers, team_reviewers):
 API_VERSION = "v3"
 BASE = "https://api.github.com"
 
+PR_TOKEN = os.environ.get("PULL_REQUEST_TOKEN") or get_envar("GITHUB_TOKEN")
+PR_REPO = os.environ.get("PULL_REQUEST_REPOSITORY") or get_envar("GITHUB_REPOSITORY")
+
 HEADERS = {
-    "Authorization": "token %s" % get_envar("GITHUB_TOKEN"),
+    "Authorization": "token %s" % PR_TOKEN,
     "Accept": "application/vnd.github.%s+json;application/vnd.github.antiope-preview+json;application/vnd.github.shadow-cat-preview+json"
     % API_VERSION,
 }
 
 # URLs
-REPO_URL = "%s/repos/%s" % (BASE, get_envar("GITHUB_REPOSITORY"))
+REPO_URL = "%s/repos/%s" % (BASE, PR_REPO)
 ISSUE_URL = "%s/issues" % REPO_URL
 PULLS_URL = "%s/pulls" % REPO_URL
 
@@ -339,8 +359,8 @@ def main():
     if not branch_prefix:
         print("No branch prefix is set, all branches will be used.")
 
-    # Default to master to support older, will eventually change to main
-    pull_request_branch = os.environ.get("PULL_REQUEST_BRANCH", "master")
+    # Default to project default branch if none provided
+    pull_request_branch = os.environ.get("PULL_REQUEST_BRANCH", find_default_branch())
     print("Pull requests will go to %s" % pull_request_branch)
 
     # Pull request draft
