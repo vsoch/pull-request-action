@@ -152,4 +152,4 @@ for the pull request opened when we updated the previous GitHub syntax to the ne
 doesn't describe the workflow above, it works equivalently in terms of the triggers.
   
 ### Proxy
-Building the docker container requires access to pypi.python.org/pypi. If you are running this action ob a self-hosted runner behind a proxy, you can configure the docker client to [flow proxy info to the container](https://docs.docker.com/network/proxy/#configure-the-docker-client). This action will respect the `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` settings in `~/.docker/config.json`, if set.
+Building the docker container requires access to pypi.python.org/pypi. If you are running this action on a self-hosted runner behind a proxy, you can configure the docker client to [flow proxy info to the container](https://docs.docker.com/network/proxy/#configure-the-docker-client) or set create `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` [environment variables](https://docs.docker.com/network/proxy/#configure-the-docker-client) on the runner.
