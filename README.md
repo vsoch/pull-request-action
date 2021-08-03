@@ -50,10 +50,11 @@ Unlike standard actions, this action just uses variables from the environment.
 | PULL_REQUEST_ASSIGNEES | A list (string with spaces) of users to assign | false | unset |
 | PULL_REQUEST_REVIEWERS | A list (string with spaces) of users to assign review | false | unset |
 | PULL_REQUEST_TEAM_REVIEWERS | A list (string with spaces) of teams to assign review | false | unset |
-| PASS_ON_ERROR | Instead of failing on an error response, pass | unset |
-| PASS_IF_EXISTS | Instead of failing if the pull request already exists, pass | unset |
-| PULL_REQUEST_UPDATE | If the pull request already exists, update it | unset |
-| PULL_REQUEST_STATE | If `PULL_REQUEST_UPDATE` is true, update to this state (open, closed) | open |
+| PASS_ON_ERROR | Instead of failing on an error response, pass | false | unset |
+| PASS_IF_EXISTS | Instead of failing if the pull request already exists, pass | false | unset |
+| PULL_REQUEST_UPDATE | If the pull request already exists, update it | false | unset |
+| PULL_REQUEST_STATE | If `PULL_REQUEST_UPDATE` is true, update to this state (open, closed) | false |open |
+| PULL_REQUEST_API_URL | The GitHub url to use (e.g., for enterprise) | false | https://api.github.com |
 
 For `PULL_REQUEST_DRAFT`, `PASS_ON_ERROR`, `PASS_IF_EXISTS`, and `MAINTAINER_CANT_MODIFY`, these are
 treated as environment booleans. If they are defined in the environment, they trigger the
