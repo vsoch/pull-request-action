@@ -54,7 +54,6 @@ Unlike standard actions, this action just uses variables from the environment.
 | PASS_IF_EXISTS | Instead of failing if the pull request already exists, pass | false | unset |
 | PULL_REQUEST_UPDATE | If the pull request already exists, update it | false | unset |
 | PULL_REQUEST_STATE | If `PULL_REQUEST_UPDATE` is true, update to this state (open, closed) | false |open |
-| PULL_REQUEST_API_URL | The GitHub url to use (e.g., for enterprise) | false | https://api.github.com |
 
 For `PULL_REQUEST_DRAFT`, `PASS_ON_ERROR`, `PASS_IF_EXISTS`, and `MAINTAINER_CANT_MODIFY`, these are
 treated as environment booleans. If they are defined in the environment, they trigger the
