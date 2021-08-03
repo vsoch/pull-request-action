@@ -284,7 +284,7 @@ def add_reviewers(entry, reviewers, team_reviewers):
 API_VERSION = "v3"
 
 # Allow for a GitHub enterprise URL
-BASE = get_envar("PULL_REQUEST_API_URL") or "https://api.github.com"
+BASE = get_envar("GITHUB_API_URL")
 
 PR_TOKEN = os.environ.get("PULL_REQUEST_TOKEN") or get_envar("GITHUB_TOKEN")
 PR_REPO = os.environ.get("PULL_REQUEST_REPOSITORY") or get_envar("GITHUB_REPOSITORY")
