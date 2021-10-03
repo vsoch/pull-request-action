@@ -235,8 +235,7 @@ def find_pull_request(listing, source):
 
 
 def find_default_branch():
-    """Find default branch for a repo (only called if branch not provided)
-    """
+    """Find default branch for a repo (only called if branch not provided)"""
     response = requests.get(REPO_URL)
 
     # Case 1: 404 might need a token
@@ -283,7 +282,9 @@ def add_reviewers(entry, reviewers, team_reviewers):
 ################################################################################
 
 API_VERSION = "v3"
-BASE = "https://api.github.com"
+
+# Allow for a GitHub enterprise URL
+BASE = os.environ.get("GITHUB_API_URL") or "https://api.github.com"
 
 PR_TOKEN = os.environ.get("PULL_REQUEST_TOKEN") or get_envar("GITHUB_TOKEN")
 PR_REPO = os.environ.get("PULL_REQUEST_REPOSITORY") or get_envar("GITHUB_REPOSITORY")
