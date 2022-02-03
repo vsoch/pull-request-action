@@ -79,7 +79,7 @@ def set_env(name, value):
     environment_file_path = os.environ.get("GITHUB_ENV")
 
     with open(environment_file_path, "a") as environment_file:
-        environment_file.write("%s=%s" % (name, value))
+        environment_file.write("%s=%s\n" % (name, value))
 
 
 def open_pull_request(title, body, target, source, is_draft=False, can_modify=True):
