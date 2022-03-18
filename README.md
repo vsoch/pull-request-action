@@ -119,7 +119,7 @@ jobs:
         run: |
             # do custom parsing of your code / date to derive a branch from
             PR_BRANCH_FROM=release-v$(cat VERSION)
-            export "PULL_REQUEST_FROM_BRANCH=${PR_BRANCH_FROM}" >> $GITHUB_ENV
+            echo "PULL_REQUEST_FROM_BRANCH=${PR_BRANCH_FROM}" >> $GITHUB_ENV
       - name: pull-request-action
         uses: vsoch/pull-request-action@master
         env:
