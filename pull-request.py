@@ -239,7 +239,7 @@ def find_default_branch():
     response = requests.get(REPO_URL)
 
     # Case 1: 404 might need a token
-    if response.status_code == 404:
+    if response.status_code in [401, 404]:
         response = requests.get(REPO_URL, headers=HEADERS)
     if response.status_code != 200:
         abort_if_fail(response, "Unable to retrieve default branch")
