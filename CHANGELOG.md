@@ -14,6 +14,7 @@ represented by the pull requests that fixed them. Critical items to know are:
 Versions correspond with GitHub releases that can be referenced with @ using actions.
 
 ## [master](https://github.com/vsoch/pull-request-action/tree/master) (master)
+  - bugfix of token handling if 401 error received (missing 401 case) (1.0.21)
   - bugfix of writing to environment file (missing newline) (1.0.19)
   - bugfix of missing from branch with scheduled run (1.0.16)
   - forgot to add assignees (1.0.15)
