@@ -180,8 +180,8 @@ def list_pull_requests(target, source):
     print("Params for checking if pull request exists: %s" % params)
     response = requests.get(PULLS_URL, params=params)
 
-    # Case 1: 404 might warrant needing a token
-    if response.status_code == 404:
+    # Case 1: 401, 404 might warrant needing a token
+    if response.status_code in [401, 404]:
         response = requests.get(PULLS_URL, params=params, headers=HEADERS)
     if response.status_code != 200:
         abort_if_fail(response, "Unable to retrieve information about pull requests")
@@ -238,7 +238,7 @@ def find_default_branch():
     """Find default branch for a repo (only called if branch not provided)"""
     response = requests.get(REPO_URL)
 
-    # Case 1: 404 might need a token
+    # Case 1: 401, 404 might need a token
     if response.status_code in [401, 404]:
         response = requests.get(REPO_URL, headers=HEADERS)
     if response.status_code != 200:
