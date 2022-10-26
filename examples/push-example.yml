@@ -2,17 +2,17 @@ name: Pull Request on Branch Push
 on:
   push:
     branches-ignore:
-      - staging
-      - launchpad
-      - production
+    - staging
+    - launchpad
+    - production
 jobs:
   auto-pull-request:
     name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
-      - name: pull-request-action
-        uses: vsoch/pull-request-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_PREFIX: "update/"
-          PULL_REQUEST_BRANCH: "master"
+    - name: pull-request-action
+      uses: vsoch/pull-request-action@d703f40f3af5ae294f9816395ddf2e3d2d3feafa # 1.0.21
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH_PREFIX: update/
+        PULL_REQUEST_BRANCH: master

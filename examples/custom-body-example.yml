@@ -2,8 +2,8 @@ name: Hotfix Branch Pull Request
 on:
   push:
     branches-ignore:
-      - master
-      - production
+    - master
+    - production
 
 # See https://github.com/vsoch/pull-request-action/issues/47#issuecomment-707109132
 
@@ -12,44 +12,45 @@ jobs:
     name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
-      - name: Generate branch name
-        uses: actions/github-script@v3
-        id: set-branch-name
-        with:
-          script: |
-            const capitalize = (name) => name.charAt(0).toUpperCase() + name.slice(1);
-            const emoji = context.payload.ref.startsWith("refs/heads/feature")
-              ? "✨ "
-              : context.payload.ref.startsWith("refs/heads/hotfix")
-              ? "🚑 "
-              : "";
-            return `${emoji}${capitalize(
-              context.payload.ref
-                .replace("refs/heads/", "")
-                .replace(/-/g, " ")
-                .replace("feature ", "")
-                .replace("hotfix ", "")
-            )}`;
-          result-encoding: string
-      - name: Set branch name
-        run: echo "PULL_REQUEST_TITLE=${{steps.set-branch-name.outputs.result}}" >> $GITHUB_ENV
-      - name: Generate PR body
-        uses: actions/github-script@v3
-        id: set-pr-body
-        with:
-          script: |
-            return `I'm opening this pull request for this branch, pushed by @${
-              context.payload.head_commit.author.username
-            } with ${context.payload.commits.length} commit${
-              context.payload.commits.length === 1 ? "" : "s"
-            }.`;
-          result-encoding: string
-      - name: Set PR body
-        run: echo "PULL_REQUEST_BODY=${{steps.set-pr-body.outputs.result}}" >> $GITHUB_ENV
-      - name: pull-request-action
-        uses: vsoch/pull-request-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_PREFIX: "hotfix-"
-          PULL_REQUEST_BRANCH: "production"
-          PULL_REQUEST_REVIEWERS: "AnandChowdhary"
+    - name: Generate branch name
+      uses: actions/github-script@v6
+      id: set-branch-name
+      with:
+        script: |
+          const capitalize = (name) => name.charAt(0).toUpperCase() + name.slice(1);
+          const emoji = context.payload.ref.startsWith("refs/heads/feature")
+            ? "✨ "
+            : context.payload.ref.startsWith("refs/heads/hotfix")
+            ? "🚑 "
+            : "";
+          return `${emoji}${capitalize(
+            context.payload.ref
+              .replace("refs/heads/", "")
+              .replace(/-/g, " ")
+              .replace("feature ", "")
+              .replace("hotfix ", "")
+          )}`;
+        result-encoding: string
+    - name: Set branch name
+      run: echo "PULL_REQUEST_TITLE=${{steps.set-branch-name.outputs.result}}" >>
+        $GITHUB_ENV
+    - name: Generate PR body
+      uses: actions/github-script@v6
+      id: set-pr-body
+      with:
+        script: |
+          return `I'm opening this pull request for this branch, pushed by @${
+            context.payload.head_commit.author.username
+          } with ${context.payload.commits.length} commit${
+            context.payload.commits.length === 1 ? "" : "s"
+          }.`;
+        result-encoding: string
+    - name: Set PR body
+      run: echo "PULL_REQUEST_BODY=${{steps.set-pr-body.outputs.result}}" >> $GITHUB_ENV
+    - name: pull-request-action
+      uses: vsoch/pull-request-action@d703f40f3af5ae294f9816395ddf2e3d2d3feafa # 1.0.21
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH_PREFIX: hotfix-
+        PULL_REQUEST_BRANCH: production
+        PULL_REQUEST_REVIEWERS: AnandChowdhary

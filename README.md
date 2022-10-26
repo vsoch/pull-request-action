@@ -100,7 +100,9 @@ The screenshot below shows the example in action to interact with outputs in sev
 ## Examples
 
 Example workflows are provided in [examples](examples), and please contribute any
-examples that you might have to help other users! We will walk through a basic
+examples that you might have to help other users! You can get the same commit hashes
+and commented tags if you use the [action-updater](https://github.com/vsoch/action-updater)
+also maintained by @vsoch. We will walk through a basic
 example here for a niche case. Let's say that we are opening a pull request on the release event. This would mean
 that the payload's branch variable would be null. We would need to define `PULL_REQUEST_FROM`. How would
 we do that? We can [set environment variables](https://github.com/actions/toolkit/blob/main/docs/commands.md#environment-files) for next steps. Here is an example:
