@@ -25,18 +25,14 @@ jobs:
     - name: Permanently save the new suite release
       run: |
         mkdir -p releases
-
         new_suite_version_yml="releases/suite_${{ steps.data.outputs.suite_version }}.yml"
         echo "Suite target file: $new_suite_version_yml"
-
         cp suite.yml "${new_suite_version_yml}"
-
         git add "${new_suite_version_yml}"
         git commit -m "Suite v${{ steps.data.outputs.suite_version }} auto-commit of new release files"
 
     - name: Push files
-      run: |
-        git push --force "https://${{ github.actor }}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git" "HEAD:${{ steps.data.outputs.suite_update_branch }}"
+      run: git push --force "https://${{ github.actor }}:${{secrets.GITHUB_TOKEN}}@github.com/${{ github.repository }}.git" "HEAD:${{ steps.data.outputs.suite_update_branch }}"
 
     - name: Open a PR to the default branch
       uses: vsoch/pull-request-action@d703f40f3af5ae294f9816395ddf2e3d2d3feafa # 1.0.21
@@ -44,6 +40,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PULL_REQUEST_FROM_BRANCH: ${{ steps.data.outputs.suite_update_branch }}
         PULL_REQUEST_BRANCH: master
-        PULL_REQUEST_TITLE: 'Action: Update suite release file for v${{ steps.data.outputs.suite_version
-          }}'
+        PULL_REQUEST_TITLE: 'Action: Update suite release file for v${{ steps.data.outputs.suite_version }}'
         PULL_REQUEST_BODY: Auto-generated PR!

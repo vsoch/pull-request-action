@@ -32,8 +32,7 @@ jobs:
           )}`;
         result-encoding: string
     - name: Set branch name
-      run: echo "PULL_REQUEST_TITLE=${{steps.set-branch-name.outputs.result}}" >>
-        $GITHUB_ENV
+      run: echo "PULL_REQUEST_TITLE=${{steps.set-branch-name.outputs.result}}" >> $GITHUB_ENV
     - name: Generate PR body
       uses: actions/github-script@v6
       id: set-pr-body
