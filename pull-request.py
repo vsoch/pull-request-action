@@ -160,11 +160,11 @@ def set_pull_request_groups(response):
     html_url = response.get("html_url")
     print("Number opened for PR is %s" % number)
     set_env("PULL_REQUEST_NUMBER", number)
-    print("::set-output name=pull_request_number::%s" % number)
+    print("pull_request_number=%s >> $GITHUB_OUTPUT" % number)
     set_env("PULL_REQUEST_RETURN_CODE", pull_request_return_code)
-    print("::set-output name=pull_request_return_code::%s" % pull_request_return_code)
+    print("pull_request_return_code=%s >> $GITHUB_OUTPUT" % pull_request_return_code)
     set_env("PULL_REQUEST_URL", html_url)
-    print("::set-output name=pull_request_url::%s" % html_url)
+    print("pull_request_url=%s >> $GITHUB_OUTPUT" % html_url)
 
 
 def list_pull_requests(target, source):
@@ -216,7 +216,7 @@ def add_assignees(entry, assignees):
     print(response.json())
     print("::endgroup::github assignees response")
     set_env("ASSIGNEES_RETURN_CODE", assignees_return_code)
-    print("::set-output name=assignees_return_code::%s" % assignees_return_code)
+    print("assignees_return_code=%s >> $GITHUB_OUTPUT" % assignees_return_code)
 
 
 def find_pull_request(listing, source):
@@ -273,7 +273,7 @@ def add_reviewers(entry, reviewers, team_reviewers):
     print(response.json())
     print("::endgroup::github reviewers response")
     set_env("REVIEWERS_RETURN_CODE", reviewers_return_code)
-    print("::set-output name=reviewers_return_code::%s" % reviewers_return_code)
+    print("reviewers_return_code=%s >> $GITHUB_OUTPUT" % reviewers_return_code)
     print("Add reviewers return code: %s" % reviewers_return_code)
 
 

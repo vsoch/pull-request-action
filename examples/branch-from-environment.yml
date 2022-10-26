@@ -1,24 +1,23 @@
 name: derive-branch-from-environment
 
 on:
-  schedule:
-    # Weekly
-    - cron: 0 0 * * 0
+  schedule: -
+    cron: 0 0 * * 0
 
 jobs:
   DoSomeUpdate:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
     - name: Install or Do Something to Change repository
       run: |
-         echo "This is a new file." >> newfile.txt
+        echo "This is a new file." >> newfile.txt
 
     - name: Checkout New Branch
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BRANCH_AGAINST: "master"
+        BRANCH_AGAINST: master
       run: |
         printf "GitHub Actor: ${GITHUB_ACTOR}\n"
         export BRANCH_FROM="update/newfile-$(date '+%Y-%m-%d')"
@@ -43,7 +42,7 @@ jobs:
         echo "PULL_REQUEST_FROM_BRANCH=${BRANCH_FROM}" >> $GITHUB_ENV
 
     - name: Open Pull Request
-      uses: vsoch/pull-request-action@master
+      uses: vsoch/pull-request-action@d703f40f3af5ae294f9816395ddf2e3d2d3feafa # 1.0.21
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PULL_REQUEST_BRANCH: "master"
+        PULL_REQUEST_BRANCH: master
