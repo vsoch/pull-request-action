@@ -69,17 +69,19 @@ def parse_into_list(values):
     return [x.strip() for x in values.split(" ")]
 
 
-def set_env(name, value):
+def set_env_and_output(name, value):
     """helper function to echo a key/value pair to the environement file
 
     Parameters:
     name (str)  : the name of the environment variable
     value (str) : the value to write to file
     """
-    environment_file_path = os.environ.get("GITHUB_ENV")
+    for env_var in ("GITHUB_ENV", "GITHUB_OUTPUT"):
+        environment_file_path = os.environ.get(env_var)
+        print("Writing %s=%s to %s" % (name, value, env_var))
 
-    with open(environment_file_path, "a") as environment_file:
-        environment_file.write("%s=%s\n" % (name, value))
+        with open(environment_file_path, "a") as environment_file:
+            environment_file.write("%s=%s\n" % (name, value))
 
 
 def open_pull_request(title, body, target, source, is_draft=False, can_modify=True):
@@ -159,12 +161,9 @@ def set_pull_request_groups(response):
     number = response.get("number")
     html_url = response.get("html_url")
     print("Number opened for PR is %s" % number)
-    set_env("PULL_REQUEST_NUMBER", number)
-    print("pull_request_number=%s >> $GITHUB_OUTPUT" % number)
-    set_env("PULL_REQUEST_RETURN_CODE", pull_request_return_code)
-    print("pull_request_return_code=%s >> $GITHUB_OUTPUT" % pull_request_return_code)
-    set_env("PULL_REQUEST_URL", html_url)
-    print("pull_request_url=%s >> $GITHUB_OUTPUT" % html_url)
+    set_env_and_output("PULL_REQUEST_NUMBER", number)
+    set_env_and_output("PULL_REQUEST_RETURN_CODE", pull_request_return_code)
+    set_env_and_output("PULL_REQUEST_URL", html_url)
 
 
 def list_pull_requests(target, source):
@@ -215,8 +214,7 @@ def add_assignees(entry, assignees):
     print("::group::github assignees response")
     print(response.json())
     print("::endgroup::github assignees response")
-    set_env("ASSIGNEES_RETURN_CODE", assignees_return_code)
-    print("assignees_return_code=%s >> $GITHUB_OUTPUT" % assignees_return_code)
+    set_env_and_output("ASSIGNEES_RETURN_CODE", assignees_return_code)
 
 
 def find_pull_request(listing, source):
@@ -272,9 +270,7 @@ def add_reviewers(entry, reviewers, team_reviewers):
     print("::group::github reviewers response")
     print(response.json())
     print("::endgroup::github reviewers response")
-    set_env("REVIEWERS_RETURN_CODE", reviewers_return_code)
-    print("reviewers_return_code=%s >> $GITHUB_OUTPUT" % reviewers_return_code)
-    print("Add reviewers return code: %s" % reviewers_return_code)
+    set_env_and_output("REVIEWERS_RETURN_CODE", reviewers_return_code)
 
 
 ################################################################################
