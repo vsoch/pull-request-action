@@ -357,7 +357,10 @@ def main():
         print("No branch prefix is set, all branches will be used.")
 
     # Default to project default branch if none provided
-    pull_request_branch = os.environ.get("PULL_REQUEST_BRANCH", find_default_branch())
+    pull_request_branch = os.environ.get("PULL_REQUEST_BRANCH")
+    if not pull_request_branch:
+        pull_request_branch = find_default_branch()
+
     print("Pull requests will go to %s" % pull_request_branch)
 
     # Pull request draft
