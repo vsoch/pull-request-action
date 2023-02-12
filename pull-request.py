@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
-import os
 import json
+import os
 import requests
+import sys
+import time
 
 ################################################################################
 # Helper Functions
@@ -35,6 +36,31 @@ def check_events_json():
     return events
 
 
+def retry(attempts=5, timeout=30):
+    """
+    A simple retry decorator
+
+    We assume rate limiting is in minutes, so we set timeout to 30.
+    """
+
+    def decorator(func):
+        def inner(*args, **kwargs):
+            attempt = 0
+            while attempt < attempts:
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    sleep = timeout * 2**attempt
+                    print(f"Retrying in {sleep} seconds - error: {e}")
+                    time.sleep(sleep)
+                    attempt += 1
+            return func(*args, **kwargs)
+
+        return inner
+
+    return decorator
+
+
 def abort_if_fail(response, reason):
     """If PASS_ON_ERROR, don't exit. Otherwise exit with an error and print
     the reason.
@@ -57,7 +83,8 @@ def abort_if_fail(response, reason):
 
 
 def parse_into_list(values):
-    """A list of reviewers or assignees to parse from a string to a list
+    """
+    A list of reviewers or assignees to parse from a string to a list
 
     Parameters:
     values (str) : a list of space separated, quoted values to parse to a list
@@ -84,8 +111,10 @@ def set_env_and_output(name, value):
             environment_file.write("%s=%s\n" % (name, value))
 
 
+@retry
 def open_pull_request(title, body, target, source, is_draft=False, can_modify=True):
-    """Open pull request opens a pull request with a given body and content,
+    """
+    Open pull request opens a pull request with a given body and content,
     and sets output variables. An unparsed response is returned.
 
     Parameters:
@@ -116,6 +145,7 @@ def open_pull_request(title, body, target, source, is_draft=False, can_modify=Tr
     return response
 
 
+@retry
 def update_pull_request(entry, title, body, target, state=None):
     """Given an existing pull request, update it.
 
@@ -166,6 +196,7 @@ def set_pull_request_groups(response):
     set_env_and_output("PULL_REQUEST_URL", html_url)
 
 
+@retry
 def list_pull_requests(target, source):
     """Given a target and source, return a list of pull requests that match
     (or simply exit given some kind of error code)
@@ -188,6 +219,7 @@ def list_pull_requests(target, source):
     return response.json()
 
 
+@retry
 def add_assignees(entry, assignees):
     """Given a pull request metadata (from create or update) add assignees
 
@@ -232,8 +264,11 @@ def find_pull_request(listing, source):
                 return entry
 
 
+@retry
 def find_default_branch():
-    """Find default branch for a repo (only called if branch not provided)"""
+    """
+    Find default branch for a repo (only called if branch not provided)
+    """
     response = requests.get(REPO_URL)
 
     # Case 1: 401, 404 might need a token
@@ -247,8 +282,10 @@ def find_default_branch():
     return default_branch
 
 
+@retry
 def add_reviewers(entry, reviewers, team_reviewers):
-    """Given regular or team reviewers, add them to a PR.
+    """
+    Given regular or team reviewers, add them to a PR.
 
     Parameters:
     entry (dict) : the pull request metadata
@@ -434,7 +471,6 @@ def main():
 
     # If the prefix for the branch matches
     if not branch_prefix or from_branch.startswith(branch_prefix):
-
         # Pull request body (optional)
         pull_request_body = os.environ.get(
             "PULL_REQUEST_BODY",
