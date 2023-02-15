@@ -42,7 +42,6 @@ def retry(attempts=5, timeout=30):
 
     We assume rate limiting is in minutes, so we set timeout to 30.
     """
-
     def decorator(func):
         def inner(*args, **kwargs):
             attempt = 0
@@ -55,9 +54,7 @@ def retry(attempts=5, timeout=30):
                     time.sleep(sleep)
                     attempt += 1
             return func(*args, **kwargs)
-
         return inner
-
     return decorator
 
 
@@ -97,7 +94,8 @@ def parse_into_list(values):
 
 
 def set_env_and_output(name, value):
-    """helper function to echo a key/value pair to the environement file
+    """
+    Helper function to echo a key/value pair to the environement file
 
     Parameters:
     name (str)  : the name of the environment variable
@@ -111,7 +109,7 @@ def set_env_and_output(name, value):
             environment_file.write("%s=%s\n" % (name, value))
 
 
-@retry
+@retry(attempts=5, timeout=60)
 def open_pull_request(title, body, target, source, is_draft=False, can_modify=True):
     """
     Open pull request opens a pull request with a given body and content,
@@ -145,9 +143,10 @@ def open_pull_request(title, body, target, source, is_draft=False, can_modify=Tr
     return response
 
 
-@retry
+@retry()
 def update_pull_request(entry, title, body, target, state=None):
-    """Given an existing pull request, update it.
+    """
+    Given an existing pull request, update it.
 
     Parameters:
     entry      (dict) : the pull request metadata
@@ -175,7 +174,8 @@ def update_pull_request(entry, title, body, target, state=None):
 
 
 def set_pull_request_groups(response):
-    """Given a response for an open or updated PR, set metadata
+    """
+    Given a response for an open or updated PR, set metadata
 
     Parameters:
     response (requests.Response) : a requests response, unparsed
@@ -196,7 +196,7 @@ def set_pull_request_groups(response):
     set_env_and_output("PULL_REQUEST_URL", html_url)
 
 
-@retry
+@retry(attempts=5, timeout=30)
 def list_pull_requests(target, source):
     """Given a target and source, return a list of pull requests that match
     (or simply exit given some kind of error code)
@@ -219,9 +219,10 @@ def list_pull_requests(target, source):
     return response.json()
 
 
-@retry
+@retry(attempts=5, timeout=30)
 def add_assignees(entry, assignees):
-    """Given a pull request metadata (from create or update) add assignees
+    """
+    Given a pull request metadata (from create or update) add assignees
 
     Parameters:
     entry (dict)    : the pull request metadata
@@ -250,7 +251,8 @@ def add_assignees(entry, assignees):
 
 
 def find_pull_request(listing, source):
-    """Given a listing and a source, find a pull request based on the source
+    """
+    Given a listing and a source, find a pull request based on the source
     (the branch name).
 
     Parameters:
@@ -264,7 +266,7 @@ def find_pull_request(listing, source):
                 return entry
 
 
-@retry
+@retry(attempts=5, timeout=30)
 def find_default_branch():
     """
     Find default branch for a repo (only called if branch not provided)
@@ -282,7 +284,7 @@ def find_default_branch():
     return default_branch
 
 
-@retry
+@retry(attempts=5, timeout=30)
 def add_reviewers(entry, reviewers, team_reviewers):
     """
     Given regular or team reviewers, add them to a PR.
