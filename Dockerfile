@@ -7,9 +7,11 @@ LABEL "com.github.actions.description"="Create a pull request when a branch is c
 LABEL "com.github.actions.icon"="activity"
 LABEL "com.github.actions.color"="yellow"
 
-RUN apk --no-cache add python3 py3-pip git bash && \
-    pip3 install requests
+# Newer alpine we are not allowed to install to system python
+RUN apk --no-cache add python3 py3-pip py3-virtualenv git bash && \
+    python3 -m venv /opt/env && \
+    /opt/env/bin/pip3 install requests
 COPY pull-request.py /pull-request.py
 
 RUN chmod u+x /pull-request.py
-ENTRYPOINT ["python3", "/pull-request.py"]
+ENTRYPOINT ["/opt/env/bin/python3", "/pull-request.py"]
