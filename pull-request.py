@@ -78,6 +78,9 @@ def set_env_and_output(name, value):
     """
     for env_var in ("GITHUB_ENV", "GITHUB_OUTPUT"):
         environment_file_path = os.environ.get(env_var)
+        if not environment_file_path:
+            print(f"Warning: {env_var} is unset, skipping.")
+            continue
         print("Writing %s=%s to %s" % (name, value, env_var))
 
         with open(environment_file_path, "a") as environment_file:
