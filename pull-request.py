@@ -208,7 +208,7 @@ def add_assignees(entry, assignees):
 
     # POST /repos/:owner/:repo/issues/:issue_number/assignees
     data = {"assignees": assignees}
-    ASSIGNEES_URL = "%s/%s/assignees" % (ISSUE_URL, number)
+    ASSIGNEES_URL = "%s/issues/%s/assignees" % (REPO_URL, number)
     response = requests.post(ASSIGNEES_URL, json=data, headers=HEADERS)
     if response.status_code != 201:
         abort_if_fail(response, "Unable to create assignees")
