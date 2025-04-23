@@ -10,7 +10,7 @@ LABEL "com.github.actions.color"="yellow"
 # Newer alpine we are not allowed to install to system python
 RUN apk --no-cache add python3 py3-pip py3-virtualenv git bash && \
     python3 -m venv /opt/env && \
-    /opt/env/bin/pip3 install requests
+    /opt/env/bin/pip3 install --break-system-packages requests
 COPY pull-request.py /pull-request.py
 
 RUN chmod u+x /pull-request.py
